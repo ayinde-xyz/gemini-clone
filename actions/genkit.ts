@@ -5,7 +5,7 @@ import {
   gemini15Flash,
   gemini15Flash8b,
   gemini15Pro,
-  gemini20FlashExp,
+  gemini20Flash,
   googleAI,
 } from "@genkit-ai/googleai";
 import { Message, MessageHistory } from "@/typings";
@@ -33,7 +33,7 @@ const modelEngines = {
   "Gemini 1.5 Pro": gemini15Pro,
   "Gemini 1.5 Flash": gemini15Flash,
   "Gemini 1.5 Flash-8b": gemini15Flash8b,
-  "Gemini 2.0 Flash-Experimental": gemini20FlashExp,
+  "Gemini 2.0 Flash-Experimental": gemini20Flash,
 };
 
 export const genkitResponse = async (
