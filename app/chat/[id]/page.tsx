@@ -1,5 +1,7 @@
+import { auth } from "@/auth";
 import Chat from "@/components/chat/chat";
 import ChatInput from "@/components/chat/chatinput";
+import { notFound } from "next/navigation";
 
 type Props = {
   params: Promise<{
@@ -9,8 +11,11 @@ type Props = {
 
 const ChatPage = async ({ params }: Props) => {
   const { id } = await params;
+  const session = await auth();
+  if (!session || !session.user) {
+    return notFound();
+  }
 
-  // console.log(session);
   return (
     <div className="flex flex-col overflow-hidden h-screen">
       <Chat chatId={id} />

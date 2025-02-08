@@ -4,14 +4,14 @@ import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import React from "react";
-import { db } from "@/firebase";
+import { db } from "@/lib/firebase/firebase";
 
 const NewChat = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const createNewChat = async () => {
     const doc = await addDoc(
-      collection(db, "users", session?.user?.email!, "chats"),
+      collection(db, "users", session?.user?.id!, "chats"),
       {
         userId: session?.user?.email!,
         createdAt: serverTimestamp(),

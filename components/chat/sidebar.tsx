@@ -4,9 +4,8 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import React from "react";
 import NewChat from "@/components/chat/newchat";
 import { collection, orderBy, query } from "firebase/firestore";
-import { db } from "@/firebase";
+import { db } from "@/lib/firebase/firebase";
 import ChatRow from "@/components/chat/chatrow";
-import ModelSelection from "@/components/chat/modelselection";
 import {
   SidebarMenu,
   Sidebar,
@@ -18,18 +17,17 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { logout } from "@/actions/logout";
+import { UserButton } from "./user-button";
 
 const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
   const { data: session } = useSession();
-  const [chats, loading, error] = useCollection(
+  const [chats, loading] = useCollection(
     session &&
       query(
-        collection(db, "users", session.user?.email!, "chats"),
+        collection(db, "users", session.user?.id!, "chats"),
         orderBy("createdAt", "asc")
       )
   );
-  // console.log(chats)
 
   return (
     <Sidebar {...props} variant="floating">
@@ -38,12 +36,6 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
           <SidebarGroupLabel>New Chat</SidebarGroupLabel>
           <SidebarGroupContent>
             <NewChat />
-          </SidebarGroupContent>
-        </SidebarGroup>
-        <SidebarGroup>
-          <SidebarGroupLabel>Models</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <ModelSelection />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarHeader>
@@ -59,7 +51,7 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
                   </div>
                 )}
                 {chats?.docs.map((chat) => (
-                  <SidebarMenu>
+                  <SidebarMenu key={chat.id}>
                     <SidebarMenuButton asChild>
                       <ChatRow key={chat.id} id={chat.id} />
                     </SidebarMenuButton>
@@ -71,15 +63,8 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <SidebarMenu>
-          {session && (
-            <img
-              onClick={() => logout()}
-              src={session.user?.image!}
-              alt="profile pic"
-              className="h-12 w-12 rounded-full cursor-pointer mx-auto mb-2 hover:opacity-50"
-            />
-          )}
+        <SidebarMenu className="items-center justify-center">
+          {session && <UserButton session={session} />}
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>

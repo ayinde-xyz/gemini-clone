@@ -1,10 +1,10 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Social } from "./social";
-import { SignupSchema, SignupSchemaType } from "@/schemas";
+import { LoginSchema, LoginSchemaType } from "@/schemas";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useTransition } from "react";
+import { useForm } from "react-hook-form";
+import { Card, CardContent } from "../ui/card";
 import {
   Form,
   FormControl,
@@ -13,17 +13,17 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
+import { Social } from "./social";
 import Link from "next/link";
-import { useTransition } from "react";
-import { signup } from "@/actions/signup";
-import toast from "react-hot-toast";
+import { login } from "@/actions/login";
 import { Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 
-export function SignupForm({
+export function LoginForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
@@ -33,18 +33,17 @@ export function SignupForm({
     searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Your account is already linked to a social account"
       : "";
-  const form = useForm<SignupSchemaType>({
-    resolver: zodResolver(SignupSchema),
+  const form = useForm<LoginSchemaType>({
+    resolver: zodResolver(LoginSchema),
     defaultValues: {
       email: "",
       password: "",
-      name: "",
     },
   });
-  const onSubmit = (values: SignupSchemaType) => {
+  const onSubmit = (values: LoginSchemaType) => {
     startLoading(() => {
-      toast.loading("Signing up...");
-      signup(values).then((response) => {
+      toast.loading("Logging in...");
+      login(values).then((response) => {
         toast.dismiss();
         if (response?.error) {
           toast.error(response.error);
@@ -61,9 +60,9 @@ export function SignupForm({
           <div className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Welcome!</h1>
+                <h1 className="text-2xl font-bold">Welcome Back</h1>
                 <p className="text-balance text-muted-foreground">
-                  Sign up to your Gemini Chatbot account
+                  Log in to your Gemini Chatbot account
                 </p>
                 <p className="text-destructive text-balance">
                   {urlError && urlError}
@@ -85,28 +84,6 @@ export function SignupForm({
                             id="email"
                             type="email"
                             placeholder="m@example.com"
-                            required
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem className="grid gap-2">
-                        <div className="flex items-center">
-                          <FormLabel htmlFor="name">Name</FormLabel>
-                        </div>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            id="name"
-                            type="text"
-                            placeholder="John Doe"
-                            required
                           />
                         </FormControl>
                         <FormMessage />
@@ -120,6 +97,11 @@ export function SignupForm({
                       <FormItem className="grid gap-2">
                         <div className="flex items-center">
                           <FormLabel htmlFor="password">Password</FormLabel>
+                          <Link
+                            href="/auth/reset"
+                            className="ml-auto text-sm underline-offset-2 hover:underline">
+                            Forgot your password?
+                          </Link>
                         </div>
                         <FormControl>
                           <Input
@@ -127,7 +109,6 @@ export function SignupForm({
                             id="password"
                             type="password"
                             placeholder="***********"
-                            required
                           />
                         </FormControl>
                         <FormMessage />
@@ -135,11 +116,11 @@ export function SignupForm({
                     )}
                   />
                   <Button
-                    disabled={loading}
                     type="submit"
+                    disabled={loading}
                     className="w-full disabled:cursor-not-allowed">
                     {loading && <Loader2 className="animate-spin" size={14} />}
-                    {loading ? "Signing up..." : "Sign up"}
+                    {loading ? "Logging in..." : "Log in"}
                   </Button>
                 </form>
               </Form>
@@ -150,11 +131,11 @@ export function SignupForm({
               </div>
               <Social />
               <div className="text-center text-sm">
-                Already have an account?{" "}
+                Don&apos;t have an account?{" "}
                 <Link
-                  href="/auth/login"
+                  href="/auth/signup"
                   className="underline underline-offset-4">
-                  Log in
+                  Create an account
                 </Link>
               </div>
             </div>

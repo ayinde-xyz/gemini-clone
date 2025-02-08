@@ -1,18 +1,20 @@
-"use client";
 import { ArrowDownCircleIcon } from "@heroicons/react/24/outline";
-import { collection, orderBy, query } from "firebase/firestore";
-import { useSession } from "next-auth/react";
-import { useCollection } from "react-firebase-hooks/firestore";
-import { db } from "@/firebase";
 import Message from "@/components/chat/message";
 import ToggleButton from "@/components/chat/togglebutton";
 import { EmptyChat } from "@/components/chat/emptychat";
 
+import { auth } from "@/auth";
+import { cn } from "@/lib/utils";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import { db } from "@/lib/firebase/firebase";
+
 type Props = {
   chatId?: string;
 };
-const Chat = ({ chatId }: Props) => {
-  const { data: session } = useSession();
+const Chat = async ({ chatId }: Props) => {
+  // const { data: session } = useSession();
+  const session = await auth();
+  // console.log(session);
 
   if (!chatId)
     return (
@@ -20,34 +22,29 @@ const Chat = ({ chatId }: Props) => {
         <EmptyChat />
       </div>
     );
-  const [messages] = useCollection(
+  const messages = await getDocs(
     query(
-      collection(
-        db,
-        "users",
-        session?.user?.email!,
-        "chats",
-        chatId!,
-        "messages"
-      ),
+      collection(db, "users", session?.user?.id!, "chats", chatId!, "messages"),
       orderBy("createdAt", "asc")
     )
   );
 
   return (
-    <div className="flex-1 overflew-y-auto overflow-x-hidden">
+    <div className="flex-1 overflow-y-auto overflow-x-hidden">
       <ToggleButton />
       {messages?.empty && (
         <>
-          <p className="mt-10 text-center text-white">
+          <p className="mt-10 text-center">
             Type a prompt below in to get started!
           </p>
-          <ArrowDownCircleIcon className="h-10 w-10 mx-auto mt-5 text-white animate-bounce" />
+          <ArrowDownCircleIcon className="h-10 w-10 mx-auto mt-5 animate-bounce" />
         </>
       )}
-      {messages?.docs.map((message) => (
-        <Message key={message.id} message={message.data()} />
-      ))}
+      <div className={cn("flex flex-col", messages?.empty && "hidden")}>
+        {messages?.docs.map((message) => (
+          <Message key={message.id} message={message.data()} />
+        ))}
+      </div>
     </div>
   );
 };

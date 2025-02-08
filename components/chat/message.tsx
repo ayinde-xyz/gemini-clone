@@ -1,17 +1,29 @@
 import { DocumentData } from "firebase/firestore";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import CopyButton from "./copybutton";
 
 type Props = {
   message: DocumentData;
 };
 
 const Message = ({ message }: Props) => {
-  const isChatGPT = message.user.name === "ChatGPT";
+  const isGemini = message.role === "model";
 
   return (
-    <div className={`py-5 text-white ${isChatGPT && "bg-[#434654]"}`}>
-      <div className="flex space-x-5 md:px-10 px-4 max-w-2xl mx-auto ">
-        <img src={message.user.avatar} alt="image" className="h-8 w-8" />
-        <p className="pt-1 text-sm whitespace-pre-wrap">{message.text}</p>
+    <div className={`py-2 flex ${isGemini ? "justify-end" : "justify-start"}`}>
+      <div className="flex space-x-5 md:px-10 px-4 max-w-2xl">
+        <Avatar>
+          <AvatarImage src={message.user.avatar} />
+          <AvatarFallback>{message.user.name[0]}</AvatarFallback>
+        </Avatar>
+        <div
+          className={`p-3 text-sm whitespace-pre-wrap rounded-2xl bg-slate-300 ${
+            isGemini &&
+            "order-first bg-linear-to-bl  from-sky-500 to-indigo-500"
+          }`}>
+          <p>{message.text}</p>
+          {isGemini && <CopyButton text={message.text} />}
+        </div>
       </div>
     </div>
   );

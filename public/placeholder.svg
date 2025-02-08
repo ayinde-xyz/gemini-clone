@@ -1,0 +1,38 @@
+<svg width="320" height="640" viewBox="0 0 320 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4A90E2;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#9B51E0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background (optional, can be removed or made transparent) -->
+  <rect width="320" height="640" fill="url(#grad1)" />
+
+  <!-- Left "twin" (stylized as a curved line) -->
+  <path d="M50 100 C 80 150, 80 250, 50 300" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" />
+
+  <!-- Right "twin" (mirror of the left one) -->
+  <path d="M270 100 C 240 150, 240 250, 270 300" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" />
+
+  <!-- Connecting line (represents communication) -->
+  <line x1="50" y1="300" x2="270" y2="300" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" />
+  
+    <!-- Chat bubble outline (more stylized and rounded) -->
+ <path d="M60 400
+           C 60 350, 260 350, 260 400
+           C 280 420, 280 480, 260 500
+           L 110 500
+           C 90 520, 70 520, 50 500
+           Z"
+          stroke="#FFFFFF" stroke-width="3" fill="none"/>
+    <text x="160" y="450" text-anchor="middle" dominant-baseline="middle"
+          fill="white" font-size="32" font-family="Arial, sans-serif">Gemini</text>
+
+
+  <!-- You could add more details here, like: -->
+  <!-- Small circles to represent "nodes" or data points -->
+  <!-- <circle cx="80" cy="180" r="5" fill="#FFFFFF" /> -->
+  <!-- <circle cx="240" cy="180" r="5" fill="#FFFFFF" /> -->
+
+</svg>

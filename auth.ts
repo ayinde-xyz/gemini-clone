@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import authOptions from "./authConfig";
 import { FirestoreAdapter } from "@auth/firebase-adapter";
-import { adminDb } from "@/firebaseAdmin";
+import { adminDb, auth as adminAuth } from "@/lib/firebase/firebaseAdmin";
 
 export const {
   handlers: { GET, POST },
@@ -10,22 +10,39 @@ export const {
   signOut,
 } = NextAuth({
   pages: {
-    signIn: "/auth/signin",
+    signIn: "/auth/login",
   },
-  events: {},
+  events: {
+    async signIn({ user }) {
+      await adminDb.collection("users").doc(user.id!).update({
+        emailVerified: new Date(),
+      });
+    },
+  },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
+      if (account?.provider !== "credentials") {
+        return true;
+      }
+      const userDoc = await adminAuth.getUserByEmail(user.email!);
+      if (!user || !userDoc.emailVerified) {
+        return false;
+      }
       return true;
     },
-    async session({ session, user, token }) {
-      // console.log("session", session, "user", user, "token", token);
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
       }
       if (session.user) {
         session.user.name = token.name;
         session.user.email = token.email ?? "";
-        // session.user.isOAuth = token.isOAuth as boolean;
       }
       return session;
     },
