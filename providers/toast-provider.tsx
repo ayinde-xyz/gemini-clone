@@ -2,7 +2,7 @@
 
 import { Toaster } from "react-hot-toast";
 
-const ClientProvider = () => {
+const ToastProvider = () => {
   return (
     <div>
       <Toaster position="top-right" />
@@ -10,4 +10,4 @@ const ClientProvider = () => {
   );
 };
 
-export default ClientProvider;
+export default ToastProvider;

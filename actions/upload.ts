@@ -1,22 +1,21 @@
 "use server";
+import { GoogleAIFileManager } from "@google/generative-ai/server";
+import { writeFileSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
 
-import { put } from "@vercel/blob";
-import { revalidatePath } from "next/cache";
+const fileManager = new GoogleAIFileManager(process.env.GOOGLE_GENAI_API_KEY!);
 
-export async function uploadFile(file: File) {
-  // const file = formData.get("file") as File;
-  const filename = file.name;
+export const uploadFile = async (file: File) => {
+  const fileBuffer = await file.arrayBuffer();
+  const buffer = Buffer.from(fileBuffer);
+  const unit8Array = new Uint8Array(buffer);
 
-  if (!file) {
-    return { error: "File is required" };
-  }
-
-  try {
-    const { url } = await put(filename, file, { access: "public" });
-
-    revalidatePath("/");
-    return { url };
-  } catch (error) {
-    return { error: "Error uploading file" };
-  }
-}
+  const tempFilePath = join(tmpdir(), file.name);
+  writeFileSync(tempFilePath, unit8Array);
+  const uploadResult = await fileManager.uploadFile(tempFilePath, {
+    mimeType: file.type,
+    displayName: file.name,
+  });
+  return uploadResult.file;
+};

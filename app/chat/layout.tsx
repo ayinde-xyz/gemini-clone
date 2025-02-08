@@ -1,4 +1,3 @@
-import ClientProvider from "@/providers/toast-provider";
 import AppSidebar from "@/components/chat/sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { Toaster } from "react-hot-toast";
@@ -13,13 +12,7 @@ const ChatLayout = ({ children }: ChatLayoutProps) => {
       <AppSidebar />
       <SidebarInset>
         <div>
-          {/* Sidebar */}
-
-          {/* ClientProvider - Notification */}
-          <ClientProvider />
-
-          <div className="bg-[#343541] flex-1">{children}</div>
-
+          {children}
           <Toaster />
         </div>
       </SidebarInset>

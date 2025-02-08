@@ -11,6 +11,7 @@ export const publicRoutes = ["/", "/auth/new-verification"];
  * @type {string[]}
  */
 export const authRoutes = [
+  "/auth/login",
   "/auth/signup",
   "/auth/error",
   "/auth/reset",

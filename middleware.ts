@@ -32,7 +32,7 @@ export default auth((req) => {
 
     // const encodedUrl = encodeURIComponent(callbackUrl);
 
-    return NextResponse.redirect(new URL(`/auth/signup`, nextUrl));
+    return NextResponse.redirect(new URL(`/auth/login`, nextUrl));
     // return Response.redirect(new URL("/auth/login", nextUrl));
   }
 

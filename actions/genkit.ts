@@ -8,81 +8,107 @@ import {
   gemini20FlashExp,
   googleAI,
 } from "@genkit-ai/googleai";
-import { Message } from "@/typings";
+import { Message, MessageHistory } from "@/typings";
 import admin from "firebase-admin";
-import { adminDb } from "@/firebaseAdmin";
+import { adminDb } from "@/lib/firebase/firebaseAdmin";
 import { Session } from "next-auth";
-import { GoogleAIFileManager } from "@google/generative-ai/server";
+import { FileMetadataResponse } from "@google/generative-ai/server";
+import { revalidatePath } from "next/cache";
+import {
+  collection,
+  getDocs,
+  limitToLast,
+  orderBy,
+  query,
+} from "firebase/firestore";
+import { db } from "@/lib/firebase/firebase";
+import { ModelType } from "@/schemas";
 
 const ai = genkit({
   plugins: [googleAI()],
 });
 
-const fileManager = new GoogleAIFileManager(process.env.GOOGLE_GENAI_API_KEY!);
-export const uploadFile = async (file: string) => {
-  console.log("Uploading file", file);
-  const uploadResult = await fileManager.uploadFile(file, {
-    mimeType: "application/pdf",
-    displayName: "A random file",
-  });
-
-  return uploadResult.file.uri;
+const modelEngines = {
+  "Gemini 1.0 Pro": gemini10Pro,
+  "Gemini 1.5 Pro": gemini15Pro,
+  "Gemini 1.5 Flash": gemini15Flash,
+  "Gemini 1.5 Flash-8b": gemini15Flash8b,
+  "Gemini 2.0 Flash-Experimental": gemini20FlashExp,
 };
-
-const modelEngines = [
-  gemini15Pro,
-  gemini15Flash,
-  gemini15Flash8b,
-  gemini20FlashExp,
-];
 
 export const genkitResponse = async (
   prompt: string,
   session: Session | null,
   chatId: string,
-  model: string
+  model: ModelType,
+  response: FileMetadataResponse | undefined
 ) => {
-  const menuSuggestionFlow = ai.defineStreamingFlow(
+  const messageHistory: MessageHistory[] = [];
+  const messages = await getDocs(
+    query(
+      collection(db, "users", session?.user?.id!, "chats", chatId!, "messages"),
+      orderBy("createdAt", "asc"),
+      limitToLast(10)
+    )
+  );
+
+  messages.forEach((doc) => {
+    messageHistory.push({
+      role: doc.data().role,
+      content: [{ text: doc.data().text }],
+    });
+  });
+  const promptFlow = ai.defineFlow(
     {
-      name: "menuSuggestionFlow",
+      name: "promptFlow",
       inputSchema: z.string(),
       outputSchema: z.string(),
     },
-    async (restaurantTheme, streamingCallback) => {
+    async (request, streamingCallback) => {
       const { text } = await ai.generate({
-        model: modelEngines[Number(model)],
+        messages: messageHistory,
+        model: modelEngines[model],
         streamingCallback,
-        prompt: restaurantTheme,
+        prompt:
+          response !== undefined
+            ? [
+                {
+                  text: request,
+                },
+                {
+                  media: { contentType: response.mimeType, url: response.uri },
+                },
+              ]
+            : request,
       });
       return text;
     }
   );
 
-  const { output, stream } = await menuSuggestionFlow(prompt);
-
-  // for await (const chunk of stream) {
-  //   console.log("Each of the answers", chunk);
-  // }
+  const { output } = promptFlow.stream(prompt);
 
   const finalOutput = await output;
 
   const message: Message = {
     text: finalOutput || "Chat GPT was unable to find an answer",
     createdAt: admin.firestore.FieldValue.serverTimestamp(),
+    role: "model",
     user: {
-      _id: "ChatGPT",
-      name: "ChatGPT",
+      _id: model,
+      name: "Gemini",
       avatar: "https://links.papareact.com/89k",
     },
   };
 
   await adminDb
     .collection("users")
-    .doc(session?.user?.email!)
+    .doc(session?.user?.id!)
     .collection("chats")
     .doc(chatId)
     .collection("messages")
     .add(message);
+
+  revalidatePath(`/api/chats/${chatId}`);
 
   return { finalOutput };
 };

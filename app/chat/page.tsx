@@ -1,11 +1,12 @@
 import { auth } from "@/auth";
 import Chat from "@/components/chat/chat";
+import { notFound } from "next/navigation";
 
 const ChatPage = async () => {
   const session = await auth();
 
-  if (!session) {
-    return null;
+  if (!session || !session.user) {  
+    return notFound();
   }
   // console.log(session);
   return (
