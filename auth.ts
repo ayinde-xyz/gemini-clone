@@ -2,6 +2,7 @@ import NextAuth from "next-auth";
 import authOptions from "./authConfig";
 import { FirestoreAdapter } from "@auth/firebase-adapter";
 import { adminDb, auth as adminAuth } from "@/lib/firebase/firebaseAdmin";
+import { getUserById } from "./data/user";
 
 export const {
   handlers: { GET, POST },
@@ -30,12 +31,6 @@ export const {
       }
       return true;
     },
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-      }
-      return token;
-    },
     async session({ session, token }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
@@ -45,6 +40,20 @@ export const {
         session.user.email = token.email ?? "";
       }
       return session;
+    },
+    async jwt({ token }) {
+      // if (user) {
+      //   token.id = user.id;
+      // }
+      if (!token.sub) return token;
+      const existingUser = await getUserById(token.sub);
+
+      if (!existingUser) return token;
+
+      token.name = existingUser.name;
+      token.email = existingUser.email;
+
+      return token;
     },
   },
   session: { strategy: "jwt" },
