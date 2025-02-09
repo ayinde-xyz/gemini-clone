@@ -10,7 +10,7 @@ const Message = ({ message }: Props) => {
   const isGemini = message.role === "model";
 
   return (
-    <div className={`py-2 flex ${isGemini ? "justify-end" : "justify-start"}`}>
+    <div className={`py-5 flex ${isGemini ? "justify-end" : "justify-start"}`}>
       <div className="flex space-x-5 md:px-10 px-4 max-w-2xl">
         <Avatar>
           <AvatarImage src={message.user.avatar} />

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Comfortaa, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
+
+const comfortaa = Comfortaa({ subsets: ["latin"] });
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,8 +30,7 @@ export default async function RootLayout({
   return (
     <SessionProvider session={session}>
       <html suppressHydrationWarning lang="en">
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <body className={`${comfortaa.className} antialiased`}>
           {children}
           {/* <Toaster /> */}
         </body>

@@ -25,8 +25,7 @@ import { uploadFile } from "@/actions/upload";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ModelSelection from "./modelselection";
-import { Textarea } from "../ui/textarea";
-import { PlusCircle, SendIcon } from "lucide-react";
+import { Plus, SendIcon } from "lucide-react";
 import toast from "react-hot-toast";
 import { notFound } from "next/navigation";
 
@@ -37,9 +36,7 @@ const ChatInput = ({ chatId }: Props) => {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   const form = useForm<ChatSchemaType>({
-    mode: "onSubmit",
     resolver: zodResolver(ChatSchema),
     defaultValues: {
       prompt: "",
@@ -50,6 +47,7 @@ const ChatInput = ({ chatId }: Props) => {
   if (!session) return notFound();
 
   const handleUpload = async (file: FileSchemaType) => {
+    setLoading(true);
     const validatedFile = FileSchema.safeParse(file);
     if (validatedFile.error) {
       console.error(validatedFile.error.message);
@@ -65,13 +63,11 @@ const ChatInput = ({ chatId }: Props) => {
     } else {
       toast.error("Failed to upload file");
     }
+    setLoading(false);
     return response;
   };
 
   const sendMessage = async (values: ChatSchemaType) => {
-    console.log("I am here");
-    const validatedFields = await form.trigger();
-    console.log(validatedFields);
     try {
       setLoading(true);
 
@@ -122,14 +118,6 @@ const ChatInput = ({ chatId }: Props) => {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      form.handleSubmit(sendMessage)();
-      //handleSubmit(e as unknown as React.FormEvent<HTMLFormElement>)
-    }
-  };
-
   return (
     <Form {...form}>
       <form
@@ -141,12 +129,12 @@ const ChatInput = ({ chatId }: Props) => {
           render={({ field }) => (
             <FormItem className="w-full">
               <FormControl>
-                <Textarea
-                  placeholder="Type your message here"
+                <Input
+                  placeholder={`Ask Gemini`}
                   disabled={!session}
                   {...field}
-                  onKeyDown={handleKeyDown}
-                  className="focus:outline-hidden pr-8 bg-muted text-base border-none resize-none placeholder:text-muted-foreground overflow-hidden rounded-lg min-h-5 disabled:cursor-not-allowed disabled:text-gray-300"
+                  // onKeyDown={handleKeyDown}
+                  className="px-8 mb-1.5 focus:outline-3 focus:outline-none focus:outline-blue-500 bg-muted text-base border-none placeholder:text-muted-foreground overflow-hidden rounded-2xl disabled:cursor-not-allowed disabled:text-gray-300"
                 />
               </FormControl>
             </FormItem>
@@ -165,25 +153,25 @@ const ChatInput = ({ chatId }: Props) => {
         <FormField
           control={form.control}
           name="file"
-          render={({ field, fieldState }) => (
-            <FormItem className="rounded-full space-y-0 absolute top-0 right-0 h-fit ">
+          render={({ field }) => (
+            <FormItem className="rounded-full space-y-0 absolute top-0 left-0.5 h-fit">
               <FormControl>
                 <Button
                   variant={"ghost"}
                   size={"icon"}
+                  type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={form.watch("model") === "Gemini 1.0 Pro"}>
-                  <PlusCircle size={14} />
+                  <Plus size={14} />
                   <Input
                     type="file"
                     ref={fileInputRef}
-                    onChange={(e) => {
+                    onChange={async (e) => {
                       if (e.target.files && e.target.files[0]) {
-                        const uploadedResult = handleUpload(e.target.files[0]);
+                        const uploadedResult = await handleUpload(
+                          e.target.files[0]
+                        );
                         field.onChange(uploadedResult);
-                        if (fieldState.error) {
-                          console.log(fieldState.error);
-                        }
                       }
                     }}
                     disabled={
@@ -204,7 +192,7 @@ const ChatInput = ({ chatId }: Props) => {
           variant={"ghost"}
           size={"icon"}
           disabled={!session || loading}
-          className="hover:opacity-50 font-bold p-1.5 absolute bottom-0 right-0  rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
+          className="hover:opacity-50 font-bold p-1.5 absolute bottom-1 right-0  rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
           <SendIcon size={14} />
         </Button>
       </form>

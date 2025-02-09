@@ -21,9 +21,7 @@ export const ChatSchema = z.object({
   // chatId: z.string().min(1, { message: "Please enter a valid chat ID" }),
   // model: z.string().min(1, { message: "Please enter a valid model" }),
   file: z
-    .custom<FileMetadataResponse>((data) => {
-      return data;
-    })
+    .custom<FileMetadataResponse>()
     .refine((files) => files && Number(files.sizeBytes) < 7000000, {
       message: "Your file must be less than 7MB",
     })
