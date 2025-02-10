@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import { Comfortaa } from "next/font/google";
+import { Comfortaa, Roboto } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import { auth } from "@/auth";
 
 const comfortaa = Comfortaa({ subsets: ["latin"] });
+const robota = Roboto({ style: "normal", weight: "400" });
 
 export const metadata: Metadata = {
   title: "Geimini Chatbot App",
@@ -20,7 +21,7 @@ export default async function RootLayout({
   return (
     <SessionProvider session={session}>
       <html suppressHydrationWarning lang="en">
-        <body className={`${comfortaa.className} antialiased`}>
+        <body className={`${robota.className} antialiased`}>
           {children}
           {/* <Toaster /> */}
         </body>

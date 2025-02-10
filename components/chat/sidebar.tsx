@@ -1,9 +1,8 @@
-"use client";
 import { useSession } from "next-auth/react";
 import { useCollection } from "react-firebase-hooks/firestore";
 import React from "react";
 import NewChat from "@/components/chat/newchat";
-import { collection, orderBy, query } from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase/firebase";
 import ChatRow from "@/components/chat/chatrow";
 import {
@@ -18,15 +17,19 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { UserButton } from "./user-button";
+import { auth } from "@/auth";
+import { notFound } from "next/navigation";
 
-const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
-  const { data: session } = useSession();
-  const [chats, loading] = useCollection(
-    session &&
-      query(
-        collection(db, "users", session.user?.id!, "chats"),
-        orderBy("createdAt", "asc")
-      )
+const AppSidebar = async ({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) => {
+  const session = await auth();
+  if (!session) return notFound();
+  const chats = await getDocs(
+    query(
+      collection(db, "users", session.user?.id!, "chats"),
+      orderBy("createdAt", "asc")
+    )
   );
 
   return (
@@ -45,11 +48,11 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
           <SidebarGroupContent>
             <div className="flex-1">
               <div className="flex flex-col space-y-2 my-2">
-                {loading && (
+                {/* {loading && (
                   <div className="animate-pulse text-center text-white">
                     <p>Loading Chats...</p>
                   </div>
-                )}
+                )} */}
                 {chats?.docs.map((chat) => (
                   <SidebarMenu key={chat.id}>
                     <SidebarMenuButton asChild>
