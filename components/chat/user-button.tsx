@@ -26,7 +26,7 @@ export const UserButton = ({ session }: Props) => {
       if (res.error) {
         toast.error(res.error);
       }
-      toast.success(res.success);
+      toast.success(res.success || "Account deleted successfully!");
     });
     setTimeout(() => {
       logout();

@@ -134,7 +134,7 @@ const ChatInput = ({ chatId }: Props) => {
                   disabled={!session}
                   {...field}
                   // onKeyDown={handleKeyDown}
-                  className="px-8 mb-1.5 focus:outline-3 focus:outline-none focus:outline-blue-500 bg-muted text-base border-none placeholder:text-muted-foreground overflow-hidden rounded-2xl disabled:cursor-not-allowed disabled:text-gray-300"
+                  className="px-8 mb-1.5 focus:outline-3 focus:outline-hidden focus:outline-blue-500 bg-muted text-base border-none placeholder:text-muted-foreground overflow-hidden rounded-2xl disabled:cursor-not-allowed disabled:text-gray-300"
                 />
               </FormControl>
             </FormItem>
