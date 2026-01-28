@@ -1,37 +1,34 @@
 "use server";
-import { LoginSchema, LoginSchemaType } from "@/schemas";
-import { signIn } from "@/auth";
-import { AuthError } from "next-auth";
 
-export const login = async (values: LoginSchemaType) => {
-  const validatedFields = LoginSchema.safeParse(values);
-  if (!validatedFields.success) {
-    return { error: "Invalid fields" };
-  }
+import { auth, ErrorCode } from "@/lib/auth";
+import { LoginSchema } from "@/schemas";
+import { APIError } from "better-auth";
+import { redirect } from "next/navigation";
+import * as z from "zod";
 
-  const { email, password } = validatedFields.data;
+export async function signInEmailAction(data: z.infer<typeof LoginSchema>) {
+  const { email, password } = data;
 
   try {
-    await signIn("credentials", { email, password, redirectTo: "/chat" });
-    return { success: "Logged in successfully" };
-  } catch (error) {
-    if (error instanceof AuthError) {
-      switch (error.type) {
-        case "CredentialsSignin":
-          return { error: "Invalid Credentials" };
-        case "AccessDenied":
-          return { error: "Access Denied" };
-        case "EmailSignInError":
-          return {
-            error: "There was an email sign in error, Please try again",
-          };
+    await auth.api.signInEmail({
+      body: {
+        email,
+        password,
+      },
+    });
+
+    return { error: null };
+  } catch (err) {
+    if (err instanceof APIError) {
+      const errCode = err.body ? (err.body.code as ErrorCode) : "UNKNOWN";
+      switch (errCode) {
+        case "EMAIL_NOT_VERIFIED":
+          redirect("/auth/verify?error=email_not_verified");
         default:
-          return {
-            error: "Something went wrong, Please try again",
-          };
+          return { error: err.message };
       }
     }
 
-    throw error;
+    throw err;
   }
-};
+}

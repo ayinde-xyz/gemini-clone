@@ -1,67 +1,41 @@
 "use server";
-import { auth, db } from "@/lib/firebase/firebase";
-import { SignupSchema, SignupSchemaType } from "@/schemas";
-import { FirebaseError } from "firebase/app";
-import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-  updateProfile,
-} from "firebase/auth";
-import {
-  collection,
-  doc,
-  getDoc,
-  getDocs,
-  query,
-  setDoc,
-  where,
-} from "firebase/firestore";
 
-export const signup = async (values: SignupSchemaType) => {
-  const validatedFields = SignupSchema.safeParse(values);
-  if (!validatedFields.success) {
-    return { error: "Invalid fields" };
-  }
+import { auth, ErrorCode } from "@/lib/auth";
+import { SignupSchema } from "@/schemas";
+import { APIError } from "better-auth";
+import z from "zod";
 
-  const { email, password, name } = validatedFields.data;
+export async function signupEmailAction(
+  data: z.infer<typeof SignupSchema>,
+) {
+  console.log(data)
+  const { name, email, password } = data;
+  
   try {
-    const userExists = await getDocs(
-      query(collection(db, "users"), where("email", "==", email))
-    );
-
-    const userExistingEmail = userExists.docs.map((doc) => doc.data());
-
-    if (userExistingEmail.length) {
-      console.log("user already exists");
-      return { error: "Email already in use" };
-    }
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    await updateProfile(userCredential.user, {
-      displayName: name,
-    });
-    await setDoc(doc(db, "users", userCredential.user.uid), {
-      email,
-      name,
-      emailVerified: null,
-      image: null,
-    });
-    await sendEmailVerification(userCredential.user, {
-      url: "http://localhost:3000/auth/login",
+    const response = await auth.api.signUpEmail({
+      body: {
+        name,
+        email,
+        password,
+      },
+      asResponse: true
     });
 
-    return { success: "Kindly check your email for verification" };
-  } catch (error) {
-    if (error instanceof FirebaseError) {
-      switch (error.code) {
-        case "auth/email-already-in-use":
-          return { error: "Email already in use" };
+    console.log(response.status)
+
+    return { success: "Sign Up successful" };
+  } catch (err) {
+    if (err instanceof APIError) {
+      const errCode = err.body ? (err.body.code as ErrorCode) : "UNKNOWN";
+
+      switch (errCode) {
+        case "USER_ALREADY_EXISTS":
+          return { error: "Oops! Something went wrong. Please try again." };
         default:
-          return { error: "Something went wrong" };
+          return { error: err.message };
       }
     }
+
+    return { error: "Internal Server Error" };
   }
-};
+}

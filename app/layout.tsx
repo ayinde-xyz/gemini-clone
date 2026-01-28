@@ -1,14 +1,15 @@
 import type { Metadata } from "next";
 import { Comfortaa, Roboto } from "next/font/google";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 const comfortaa = Comfortaa({ subsets: ["latin"] });
 const robota = Roboto({ style: "normal", weight: "400" });
 
 export const metadata: Metadata = {
-  title: "Geimini Chatbot App",
+  title: "Neuralis AI",
   description: "Built using Next.js and Firebase Genkit",
 };
 
@@ -17,16 +18,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await auth();
   return (
-    <SessionProvider session={session}>
-      <html lang="en">
-        <body className={`${robota.className} antialiased`}>
-          {children}
-          {/* <Toaster /> */}
-        </body>
-      </html>
-    </SessionProvider>
+    <html lang="en">
+      <body className={`${robota.className} antialiased`}>{children}</body>
+    </html>
   );
 }
 

@@ -19,7 +19,7 @@ import Link from "next/link";
 import { useTransition } from "react";
 import { reset } from "@/actions/reset";
 import { Loader2 } from "lucide-react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -54,7 +54,7 @@ export function ResetForm({
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden">
-        <CardContent className="grid p-0 md:grid-cols-2">
+        <CardContent className=" p-0 ">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
               <div className="flex flex-col gap-6">
@@ -108,14 +108,6 @@ export function ResetForm({
               </div>
             </form>
           </Form>
-          <div className="relative hidden bg-muted md:block">
-            <Image
-              fill
-              src="/placeholder.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
-          </div>
         </CardContent>
       </Card>
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">

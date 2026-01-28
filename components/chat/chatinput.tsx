@@ -26,7 +26,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import ModelSelection from "./modelselection";
 import { Plus, SendIcon } from "lucide-react";
-import toast from "react-hot-toast";
+import { toast } from "sonner";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -99,9 +99,9 @@ const ChatInput = ({ chatId }: Props) => {
           session?.user?.id!,
           "chats",
           chatId,
-          "messages"
+          "messages",
         ),
-        message
+        message,
       );
 
       const output = await genkitResponse(input, session, chatId, model, file);
@@ -122,7 +122,7 @@ const ChatInput = ({ chatId }: Props) => {
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(sendMessage)}
-        className="flex  w-full max-w-2xl mx-auto relative rounded-[16px] md:px-0 text-sm">
+        className="flex  w-full max-w-2xl mx-auto relative rounded-2xl md:px-0 text-sm">
         <FormField
           control={form.control}
           name="prompt"
@@ -169,7 +169,7 @@ const ChatInput = ({ chatId }: Props) => {
                     onChange={async (e) => {
                       if (e.target.files && e.target.files[0]) {
                         const uploadedResult = await handleUpload(
-                          e.target.files[0]
+                          e.target.files[0],
                         );
                         field.onChange(uploadedResult);
                       }

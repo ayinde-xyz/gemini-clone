@@ -16,20 +16,23 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { UserButton } from "./user-button";
-import { auth } from "@/auth";
+import { SignOut } from "./user-button";
+import { auth } from "@/lib/auth";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 
 const AppSidebar = async ({
   ...props
 }: React.ComponentProps<typeof Sidebar>) => {
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   if (!session) return notFound();
   const chats = await getDocs(
     query(
       collection(db, "users", session.user?.id!, "chats"),
-      orderBy("createdAt", "asc")
-    )
+      orderBy("createdAt", "asc"),
+    ),
   );
 
   return (
@@ -67,7 +70,7 @@ const AppSidebar = async ({
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenu className="items-center justify-center">
-          {session && <UserButton session={session} />}
+          {session && <SignOut />}
         </SidebarMenu>
       </SidebarFooter>
     </Sidebar>

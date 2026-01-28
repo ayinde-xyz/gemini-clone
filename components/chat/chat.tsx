@@ -2,17 +2,20 @@ import Message from "@/components/chat/message";
 import ToggleButton from "@/components/chat/togglebutton";
 import { EmptyChat } from "@/components/chat/emptychat";
 
-import { auth } from "@/auth";
 import { cn } from "@/lib/utils";
 import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "@/lib/firebase/firebase";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
 
 type Props = {
   chatId?: string;
 };
 const Chat = async ({ chatId }: Props) => {
   // const { data: session } = useSession();
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   // console.log(session);
 
   if (!chatId)
@@ -25,8 +28,8 @@ const Chat = async ({ chatId }: Props) => {
   const messages = await getDocs(
     query(
       collection(db, "users", session?.user?.id!, "chats", chatId!, "messages"),
-      orderBy("createdAt", "asc")
-    )
+      orderBy("createdAt", "asc"),
+    ),
   );
 
   return (

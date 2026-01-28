@@ -1,6 +1,7 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import Chat from "@/components/chat/chat";
 import ChatInput from "@/components/chat/chatinput";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 
 type Props = {
@@ -11,7 +12,9 @@ type Props = {
 
 const ChatPage = async ({ params }: Props) => {
   const { id } = await params;
-  const session = await auth();
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   if (!session || !session.user) {
     return notFound();
   }

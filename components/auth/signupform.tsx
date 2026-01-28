@@ -17,10 +17,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useTransition } from "react";
-import { signup } from "@/actions/signup";
-import toast from "react-hot-toast";
+import { signupEmailAction } from "@/actions/signup";
+import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 export function SignupForm({
@@ -29,6 +29,7 @@ export function SignupForm({
 }: React.ComponentProps<"div">) {
   const searchParams = useSearchParams();
   const [loading, startLoading] = useTransition();
+  const router = useRouter();
   const urlError =
     searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Your account is already linked to a social account"
@@ -42,28 +43,31 @@ export function SignupForm({
     },
   });
   const onSubmit = (values: SignupSchemaType) => {
-    startLoading(() => {
+    startLoading(async () => {
       toast.loading("Signing up...");
-      signup(values).then((response) => {
+      const { error, success } = await signupEmailAction(values);
+      console.log(error);
+
+      if (error) {
         toast.dismiss();
-        if (response?.error) {
-          toast.error(response.error);
-          return;
-        }
-        toast.success(response?.success || "Signed up successfully!");
-      });
+        toast.error(error);
+      } else {
+        toast.dismiss();
+        toast.success("Registration Complete, Please verify your email");
+        router.push("/auth/signup/success");
+      }
     });
   };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden">
-        <CardContent className="grid p-0 md:grid-cols-2">
+        <CardContent className="p-0">
           <div className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
-                <h1 className="text-2xl font-bold">Welcome!</h1>
+                <h1 className="text-xl font-bold">Welcome!</h1>
                 <p className="text-balance text-muted-foreground">
-                  Sign up to your Gemini Chatbot account
+                  Sign up to your account
                 </p>
                 <p className="text-destructive text-balance">
                   {urlError && urlError}
@@ -160,14 +164,14 @@ export function SignupForm({
             </div>
           </div>
 
-          <div className="relative hidden bg-muted md:block">
+          {/* <div className="relative hidden bg-muted md:block">
             <Image
               fill
               src="/placeholder.svg"
               alt="Image"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
-          </div>
+          </div> */}
         </CardContent>
       </Card>
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">

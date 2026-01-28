@@ -1,44 +1,25 @@
-import NextAuth from "next-auth";
-import authOptions from "@/authConfig";
-import { NextResponse } from "next/server";
-import { apiAuthPrefix, authRoutes, publicRoutes } from "@/routes";
+import { NextRequest, NextResponse } from "next/server";
+import { getSessionCookie } from "better-auth/cookies";
 
-const { auth } = NextAuth(authOptions);
+export async function proxy(request: NextRequest) {
+  const sessionCookie = getSessionCookie(request);
 
-export default auth((req) => {
-  const { nextUrl } = req;
-  const isLoggedin = !!req.auth;
-  // console.log(req.auth);
-
-  const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
-  const isAuthRoute = authRoutes.includes(nextUrl.pathname);
-  const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
-  if (isApiAuthRoute) {
-    return;
+  const { pathname } = request.nextUrl;
+  console.log("Session Cookie in Middleware:", sessionCookie);
+  // Redirect authenticated users away from login/signup pages
+  if (sessionCookie && ["/auth/login", "/auth/signup"].includes(pathname)) {
+    return NextResponse.redirect(new URL("/chat", request.url));
   }
 
-  if (isAuthRoute) {
-    if (isLoggedin) {
-      return NextResponse.redirect(new URL("/chat", nextUrl));
-    }
-    return;
+  // Redirect unauthenticated users trying to access protected routes
+  if (!sessionCookie && pathname.startsWith("/chat")) {
+    return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
-  if (!isLoggedin && !isPublicRoute) {
-    let callbackUrl = nextUrl.pathname;
-    if (nextUrl.search) {
-      callbackUrl += nextUrl.search;
-    }
-
-    // const encodedUrl = encodeURIComponent(callbackUrl);
-
-    return NextResponse.redirect(new URL(`/auth/login`, nextUrl));
-    // return Response.redirect(new URL("/auth/login", nextUrl));
-  }
-
-  return;
-});
+  return NextResponse.next();
+}
 
 export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
+  // Apply middleware to these routes
+  matcher: ["/chat", "/auth/:path*"],
 };

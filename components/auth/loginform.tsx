@@ -17,10 +17,10 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Social } from "./social";
 import Link from "next/link";
-import { login } from "@/actions/login";
+import { signInEmailAction } from "@/actions/login";
 import { Loader2 } from "lucide-react";
-import toast from "react-hot-toast";
-import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 export function LoginForm({
@@ -29,6 +29,8 @@ export function LoginForm({
 }: React.ComponentProps<"div">) {
   const searchParams = useSearchParams();
   const [loading, startLoading] = useTransition();
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const urlError =
     searchParams.get("error") === "OAuthAccountNotLinked"
       ? "Your account is already linked to a social account"
@@ -41,28 +43,31 @@ export function LoginForm({
     },
   });
   const onSubmit = (values: LoginSchemaType) => {
-    startLoading(() => {
-      toast.loading("Logging in...");
-      login(values).then((response) => {
+    toast.loading("Logging in...");
+
+    startTransition(async () => {
+      const { error } = await signInEmailAction(values);
+
+      if (error) {
         toast.dismiss();
-        if (response?.error) {
-          toast.error(response.error);
-          return;
-        }
-        toast.success(response?.success || "Logged in successfully!");
-      });
+        toast.error(error);
+      } else {
+        toast.dismiss();
+        toast.success("Logged in successfully!");
+        router.replace("/");
+      }
     });
   };
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card className="overflow-hidden">
-        <CardContent className="grid p-0 md:grid-cols-2">
+        <CardContent className="p-0">
           <div className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome Back</h1>
                 <p className="text-balance text-muted-foreground">
-                  Log in to your Gemini Chatbot account
+                  Log in to your account
                 </p>
                 <p className="text-destructive text-balance">
                   {urlError && urlError}
@@ -139,15 +144,6 @@ export function LoginForm({
                 </Link>
               </div>
             </div>
-          </div>
-
-          <div className="relative hidden bg-muted md:block">
-            <Image
-              fill
-              src="/placeholder.svg"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
-            />
           </div>
         </CardContent>
       </Card>
