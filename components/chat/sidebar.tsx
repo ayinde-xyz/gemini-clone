@@ -52,7 +52,7 @@ const AppSidebar = async ({
     redirect(`/chat/${created.id}`);
   };
 
-  // const chats = await getChats(session);
+  const chats = await getChats(session);
   // const session = await auth.api.getSession({
   //   headers: await headers(),
   // });
@@ -93,13 +93,13 @@ const AppSidebar = async ({
                     <p>Loading Chats...</p>
                   </div>
                 )} */}
-                {/* {chats?.map((chat) => (
+                {chats?.map((chat) => (
                   <SidebarMenu key={chat.id}>
                     <SidebarMenuButton asChild>
                       <ChatRow key={chat.id} id={chat.id} />
                     </SidebarMenuButton>
                   </SidebarMenu>
-                ))} */}
+                ))}
               </div>
             </div>
           </SidebarGroupContent>
