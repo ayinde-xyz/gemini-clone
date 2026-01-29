@@ -11,7 +11,7 @@ import {
 import { Message, MessageHistory } from "@/typings";
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebase/firebaseAdmin";
-import { Session } from "next-auth";
+import { Session } from "@/lib/auth-client";
 import { FileMetadataResponse } from "@google/generative-ai/server";
 import { revalidatePath } from "next/cache";
 import {
@@ -38,18 +38,18 @@ const modelEngines = {
 
 export const genkitResponse = async (
   prompt: string,
-  session: Session | null,
+  session: Session,
   chatId: string,
   model: ModelType,
-  response: FileMetadataResponse | undefined
+  response: FileMetadataResponse | undefined,
 ) => {
   const messageHistory: MessageHistory[] = [];
   const messages = await getDocs(
     query(
       collection(db, "users", session?.user?.id!, "chats", chatId!, "messages"),
       orderBy("createdAt", "asc"),
-      limitToLast(10)
-    )
+      limitToLast(10),
+    ),
   );
 
   messages.forEach((doc) => {
@@ -82,7 +82,7 @@ export const genkitResponse = async (
             : request,
       });
       return text;
-    }
+    },
   );
 
   const { output } = promptFlow.stream(prompt);

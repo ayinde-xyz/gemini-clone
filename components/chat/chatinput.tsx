@@ -1,6 +1,6 @@
 "use client";
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { useSession } from "next-auth/react";
+import { useSession } from "@/lib/auth-client";
 import { useRef, useState } from "react";
 import { db } from "@/lib/firebase/firebase";
 

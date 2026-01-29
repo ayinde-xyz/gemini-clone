@@ -1,9 +1,6 @@
-import { useSession } from "next-auth/react";
-import { useCollection } from "react-firebase-hooks/firestore";
 import React from "react";
 import NewChat from "@/components/chat/newchat";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db } from "@/lib/firebase/firebase";
+
 import ChatRow from "@/components/chat/chatrow";
 import {
   SidebarMenu,
@@ -16,10 +13,13 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { SignOut } from "./user-button";
-import { auth } from "@/lib/auth";
-import { notFound } from "next/navigation";
 import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { db } from "@/drizzle";
+import { chat } from "@/drizzle/schema";
+import { redirect } from "next/navigation";
+import { notFound } from "next/navigation";
+import { getChats } from "@/actions/newchat";
 
 const AppSidebar = async ({
   ...props
@@ -27,13 +27,50 @@ const AppSidebar = async ({
   const session = await auth.api.getSession({
     headers: await headers(),
   });
-  if (!session) return notFound();
-  const chats = await getDocs(
-    query(
-      collection(db, "users", session.user?.id!, "chats"),
-      orderBy("createdAt", "asc"),
-    ),
-  );
+  if (!session || !session.user) {
+    return notFound();
+  }
+
+  const createNewChat = async () => {
+    "use server";
+
+    if (!session) {
+      redirect("/auth/signup");
+    }
+    const [created] = await db
+      .insert(chat)
+      .values({
+        userId: session.user.id || "",
+        title: "New Chat",
+        createdAt: new Date(),
+      })
+      .returning({ id: chat.id });
+
+    console.log(created);
+
+    if (!created?.id) return;
+    redirect(`/chat/${created.id}`);
+  };
+
+  // const chats = await getChats(session);
+  // const session = await auth.api.getSession({
+  //   headers: await headers(),
+  // });
+  // if (!session) return notFound();
+  console.log("SIDEBAR SESSION:", session);
+
+  // const chats = await db
+  //   .select()
+  //   .from(chat)
+  //   .where(eq(chat.userId, session.user?.id || ""));
+
+  // console.log(chats);
+  // const chats = await getDocs(
+  //   query(
+  //     collection(db, "users", session.user?.id!, "chats"),
+  //     orderBy("createdAt", "asc"),
+  //   ),
+  // );
 
   return (
     <Sidebar {...props} variant="floating">
@@ -41,7 +78,7 @@ const AppSidebar = async ({
         <SidebarGroup>
           <SidebarGroupLabel>New Chat</SidebarGroupLabel>
           <SidebarGroupContent>
-            <NewChat />
+            <NewChat create={createNewChat} />
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarHeader>
@@ -56,23 +93,23 @@ const AppSidebar = async ({
                     <p>Loading Chats...</p>
                   </div>
                 )} */}
-                {chats?.docs.map((chat) => (
+                {/* {chats?.map((chat) => (
                   <SidebarMenu key={chat.id}>
                     <SidebarMenuButton asChild>
                       <ChatRow key={chat.id} id={chat.id} />
                     </SidebarMenuButton>
                   </SidebarMenu>
-                ))}
+                ))} */}
               </div>
             </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <SidebarMenu className="items-center justify-center">
           {session && <SignOut />}
         </SidebarMenu>
-      </SidebarFooter>
+      </SidebarFooter> */}
     </Sidebar>
   );
 };

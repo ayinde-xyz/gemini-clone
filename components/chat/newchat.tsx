@@ -1,32 +1,24 @@
 "use client";
 import { PlusIcon } from "@heroicons/react/24/solid";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import React from "react";
-import { db } from "@/lib/firebase/firebase";
+import { redirect } from "next/navigation";
+import { db } from "@/drizzle";
+import { chat } from "@/drizzle/schema";
+import { Button } from "../ui/button";
+import { useSession } from "@/lib/auth-client";
 
-const NewChat = () => {
-  const router = useRouter();
-  const { data: session } = useSession();
-  const createNewChat = async () => {
-    const doc = await addDoc(
-      collection(db, "users", session?.user?.id!, "chats"),
-      {
-        userId: session?.user?.email!,
-        createdAt: serverTimestamp(),
-      }
-    );
+interface NewChatProps {
+  create: () => Promise<void>;
+}
 
-    console.log(doc);
+const NewChat = ({ create }: NewChatProps) => {
+  const session = useSession();
+  if (!session || !session.data) return null;
 
-    router.push(`/chat/${doc.id}`);
-  };
   return (
-    <div onClick={createNewChat} className="border-gray-700 border chatRow">
+    <Button onClick={create} className="border-gray-700 border chatRow">
       <PlusIcon className="h-4 w-4" />
       <p>New Chat</p>
-    </div>
+    </Button>
   );
 };
 
