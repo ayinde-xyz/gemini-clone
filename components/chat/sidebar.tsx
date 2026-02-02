@@ -1,6 +1,5 @@
-import React from "react";
+"use client";
 import NewChat from "@/components/chat/newchat";
-
 import ChatRow from "@/components/chat/chatrow";
 import {
   SidebarMenu,
@@ -13,64 +12,23 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
-import { db } from "@/drizzle";
-import { chat } from "@/drizzle/schema";
+import { Chat } from "@/drizzle/schema";
 import { redirect } from "next/navigation";
-import { notFound } from "next/navigation";
-import { getChats } from "@/actions/newchat";
+import useSWR from "swr";
+import axios from "axios";
 
-const AppSidebar = async ({
-  ...props
-}: React.ComponentProps<typeof Sidebar>) => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  if (!session || !session.user) {
-    return notFound();
-  }
-
+const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
   const createNewChat = async () => {
-    "use server";
-
-    if (!session) {
-      redirect("/auth/signup");
-    }
-    const [created] = await db
-      .insert(chat)
-      .values({
-        userId: session.user.id || "",
-        title: "New Chat",
-        createdAt: new Date(),
-      })
-      .returning({ id: chat.id });
-
-    console.log(created);
-
-    if (!created?.id) return;
-    redirect(`/chat/${created.id}`);
+    const newChatId = await axios.get("/api/chat/createNewChat");
+    redirect(`/chat/${newChatId.data.id}`);
   };
 
-  const chats = await getChats(session);
-  // const session = await auth.api.getSession({
-  //   headers: await headers(),
-  // });
-  // if (!session) return notFound();
-  console.log("SIDEBAR SESSION:", session);
-
-  // const chats = await db
-  //   .select()
-  //   .from(chat)
-  //   .where(eq(chat.userId, session.user?.id || ""));
-
-  // console.log(chats);
-  // const chats = await getDocs(
-  //   query(
-  //     collection(db, "users", session.user?.id!, "chats"),
-  //     orderBy("createdAt", "asc"),
-  //   ),
-  // );
+  const {
+    data: chats,
+    error,
+    isLoading,
+  } = useSWR<Chat[]>("/api/chat/fetchChats", fetcher);
 
   return (
     <Sidebar {...props} variant="floating">
@@ -96,7 +54,7 @@ const AppSidebar = async ({
                 {chats?.map((chat) => (
                   <SidebarMenu key={chat.id}>
                     <SidebarMenuButton asChild>
-                      <ChatRow key={chat.id} id={chat.id} />
+                      <ChatRow chat={chat} />
                     </SidebarMenuButton>
                   </SidebarMenu>
                 ))}

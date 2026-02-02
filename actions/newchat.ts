@@ -1,5 +1,4 @@
-import { connection } from "next/server";
-import { unstable_cacheLife as cache } from "next/cache";
+import "server-only";
 import { db } from "@/drizzle";
 import { type Chat, chat } from "@/drizzle/schema";
 import { auth } from "@/lib/auth";
@@ -29,11 +28,9 @@ export const createNewChat = async () => {
   return created.id;
 };
 
-export const getChats = async () => {
-  return await cache(async () => {
-    return db
-      .select()
-      .from(chat)
-      .where(eq(chat.userId, session.user?.id || ""));
-  });
+export const getChats = async (session: Session) => {
+  return db
+    .select()
+    .from(chat)
+    .where(eq(chat.userId, session.user?.id || ""));
 };

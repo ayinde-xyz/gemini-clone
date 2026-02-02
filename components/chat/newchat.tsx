@@ -7,7 +7,7 @@ import { Button } from "../ui/button";
 import { useSession } from "@/lib/auth-client";
 
 interface NewChatProps {
-  create: () => Promise<void>;
+  create?: () => Promise<void>;
 }
 
 const NewChat = ({ create }: NewChatProps) => {

@@ -24,7 +24,6 @@ import { genkitResponse } from "@/actions/genkit";
 import { uploadFile } from "@/actions/upload";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import ModelSelection from "./modelselection";
 import { Plus, SendIcon } from "lucide-react";
 import { toast } from "sonner";
 import { notFound } from "next/navigation";
@@ -74,8 +73,6 @@ const ChatInput = ({ chatId }: Props) => {
       toast.loading("Sending message...");
       const { prompt, model, file } = values;
       console.log(values);
-
-      // const response = file ? await uploadFile(file) : undefined;
 
       const input = prompt.trim();
 
@@ -140,7 +137,7 @@ const ChatInput = ({ chatId }: Props) => {
             </FormItem>
           )}
         />
-        <FormField
+        {/* <FormField
           control={form.control}
           name="model"
           render={({ field }) => (
@@ -149,8 +146,8 @@ const ChatInput = ({ chatId }: Props) => {
               <FormMessage />
             </FormItem>
           )}
-        />
-        <FormField
+        /> */}
+        {/* <FormField
           control={form.control}
           name="file"
           render={({ field }) => (
@@ -186,7 +183,7 @@ const ChatInput = ({ chatId }: Props) => {
               </FormControl>
             </FormItem>
           )}
-        />
+        /> */}
         <Button
           type="submit"
           variant={"ghost"}
