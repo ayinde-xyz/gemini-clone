@@ -50,7 +50,7 @@ const ChatInput = ({ chatId }: Props) => {
     const validatedFile = FileSchema.safeParse(file);
     if (validatedFile.error) {
       console.error(validatedFile.error.message);
-      toast.error("Please ensure your file is less than 7MB");
+      toast.error("Please ensure your file is less than 6MB");
       return null;
     }
     toast.loading("Uploading file...");
