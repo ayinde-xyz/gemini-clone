@@ -26,8 +26,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, SendIcon } from "lucide-react";
 import { toast } from "sonner";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import axios from "axios";
+import { addMessage } from "@/actions/newchat";
 
 type Props = {
   chatId: string;
@@ -35,6 +36,7 @@ type Props = {
 const ChatInput = ({ chatId }: Props) => {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const router = useRouter();
   const form = useForm<ChatSchemaType>({
     resolver: zodResolver(ChatSchema),
     defaultValues: {
@@ -72,10 +74,12 @@ const ChatInput = ({ chatId }: Props) => {
       toast.loading("Sending message...");
       const { prompt, model, file } = values;
 
-      await axios.post("/api/chat/addMessage", {
-        chatId,
-        prompt,
-      });
+      // await axios.post("/api/chat/addMessage", {
+      //   chatId,
+      //   prompt,
+      // });
+
+      await addMessage(prompt, chatId);
 
       // const input = prompt.trim();
 

@@ -1,4 +1,3 @@
-"use client";
 import Message from "@/components/chat/message";
 import ToggleButton from "@/components/chat/togglebutton";
 import { EmptyChat } from "@/components/chat/emptychat";
@@ -6,14 +5,15 @@ import { cn } from "@/lib/utils";
 import axios from "axios";
 import useSWR from "swr";
 import { Message as MessageType } from "@/drizzle/schema";
+import { getMessagesByChatId } from "@/actions/newchat";
 
 type Props = {
   chatId?: string;
 };
 
-const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+// const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 
-const Chat = ({ chatId }: Props) => {
+const Chat = async ({ chatId }: Props) => {
   if (!chatId)
     return (
       <div className="flex-1 overflew-y-auto overflow-x-hidden">
@@ -22,16 +22,16 @@ const Chat = ({ chatId }: Props) => {
       </div>
     );
 
-  const {
-    data: messages,
-    error,
-    isLoading,
-  } = useSWR<MessageType[]>(
-    `/api/chat/fetchMessages?chatId=${chatId}`,
-    fetcher,
-  );
+  // const {
+  //   data: messages,
+  //   error,
+  //   isLoading,
+  // } = useSWR<MessageType[]>(
+  //   `/api/chat/fetchMessages?chatId=${chatId}`,
+  //   fetcher,
+  // );
 
-  console.log("messages", messages);
+  const messages = await getMessagesByChatId(chatId);
 
   return (
     <div className="flex-1 overflow-y-auto overflow-x-hidden">
@@ -39,7 +39,7 @@ const Chat = ({ chatId }: Props) => {
       {!messages?.length && <EmptyChat />}
       <div className={cn("flex flex-col", !messages?.length && "hidden")}>
         {messages &&
-          messages.map((message) => (
+          messages.map((message: any) => (
             <Message key={message.id} message={message} />
           ))}
       </div>

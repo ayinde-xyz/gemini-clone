@@ -1,36 +1,53 @@
 import "server-only";
 import { db } from "@/drizzle";
-import { type Chat, chat } from "@/drizzle/schema";
-import { auth } from "@/lib/auth";
+import { type Chat, chat, message } from "@/drizzle/schema";
 import { Session } from "@/lib/auth-client";
-import { eq } from "drizzle-orm";
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
-
-export const createNewChat = async () => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session) {
-    redirect("/auth/signup");
-  }
-
-  const [created] = await db
-    .insert(chat)
-    .values({
-      userId: session.user.id || "",
-      title: "New Chat",
-      createdAt: new Date(),
-    })
-    .returning({ id: chat.id });
-
-  return created.id;
-};
+import { asc, eq } from "drizzle-orm";
+import axios from "axios";
+import { revalidatePath } from "next/cache";
 
 export const getChats = async (session: Session) => {
-  return db
+  const response = await db
     .select()
     .from(chat)
     .where(eq(chat.userId, session.user?.id || ""));
+
+  return response;
 };
+
+export const getMessagesByChatId = async (chatId: string) => {
+  const response = await db
+    .select()
+    .from(message)
+    .where(eq(message.chatId, chatId))
+    .orderBy(asc(message.createdAt));
+
+  return response;
+};
+
+export const addMessage = async (prompt: string, chatId: string) => {
+  const response = await db
+    .insert(message)
+    .values({
+      parts: prompt,
+      chatId,
+      attachments: [],
+      role: "user",
+      createdAt: new Date(),
+    })
+    .returning({
+      id: message.id,
+    });
+
+  return response;
+};
+
+// Revalidation functions
+// export const revalidateMessages = async (chatId: string) => {
+//   revalidateTag(`messages-${chatId}`, "max");
+//   revalidateTag("messages", "max");
+// };
+
+// export const revalidateChats = async (userId: string) => {
+//   revalidateTag(`chats-${userId}`, "max");
+// };

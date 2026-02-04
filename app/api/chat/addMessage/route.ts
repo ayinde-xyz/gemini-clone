@@ -1,6 +1,7 @@
 import { db } from "@/drizzle";
 import { message } from "@/drizzle/schema";
 import { auth } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -18,9 +19,7 @@ export async function POST(request: NextRequest) {
 
     const { chatId, prompt } = body;
 
-    console.log(chatId, prompt);
-
-    const response = await db
+    await db
       .insert(message)
       .values({
         parts: prompt,
@@ -33,8 +32,9 @@ export async function POST(request: NextRequest) {
         id: message.id,
       });
 
-    console.log(response);
+    //  console.log(response);
 
+    revalidatePath("/chat/[id]", "layout");
     return NextResponse.json("Message sent successfully", { status: 200 });
   } catch (error) {
     return NextResponse.json({ error: "Message not sent successfully" });
