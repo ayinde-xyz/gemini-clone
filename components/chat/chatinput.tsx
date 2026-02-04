@@ -27,12 +27,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, SendIcon } from "lucide-react";
 import { toast } from "sonner";
 import { notFound } from "next/navigation";
+import axios from "axios";
 
 type Props = {
   chatId: string;
 };
 const ChatInput = ({ chatId }: Props) => {
-  const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const form = useForm<ChatSchemaType>({
@@ -43,7 +43,6 @@ const ChatInput = ({ chatId }: Props) => {
       file: undefined,
     },
   });
-  if (!session) return notFound();
 
   const handleUpload = async (file: FileSchemaType) => {
     setLoading(true);
@@ -72,41 +71,45 @@ const ChatInput = ({ chatId }: Props) => {
 
       toast.loading("Sending message...");
       const { prompt, model, file } = values;
-      console.log(values);
 
-      const input = prompt.trim();
+      await axios.post("/api/chat/addMessage", {
+        chatId,
+        prompt,
+      });
 
-      const message: Message = {
-        text: input,
-        createdAt: serverTimestamp(),
-        role: "user",
-        user: {
-          _id: session?.user?.email!,
-          name: session?.user?.name!,
-          avatar:
-            session?.user?.image! ||
-            `https://ui-avatars.com/api/?name=${session?.user?.name}`,
-        },
-      };
+      // const input = prompt.trim();
 
-      await addDoc(
-        collection(
-          db,
-          "users",
-          session?.user?.id!,
-          "chats",
-          chatId,
-          "messages",
-        ),
-        message,
-      );
+      // const message: Message = {
+      //   text: input,
+      //   createdAt: serverTimestamp(),
+      //   role: "user",
+      //   user: {
+      //     _id: session?.user?.email!,
+      //     name: session?.user?.name!,
+      //     avatar:
+      //       session?.user?.image! ||
+      //       `https://ui-avatars.com/api/?name=${session?.user?.name}`,
+      //   },
+      // };
 
-      const output = await genkitResponse(input, session, chatId, model, file);
+      // await addDoc(
+      //   collection(
+      //     db,
+      //     "users",
+      //     session?.user?.id!,
+      //     "chats",
+      //     chatId,
+      //     "messages",
+      //   ),
+      //   message,
+      // );
 
-      if (output) {
-        toast.dismiss();
-        toast.success("Message sent successfully");
-      }
+      // const output = await genkitResponse(input, session, chatId, model, file);
+
+      // if (output) {
+      //   toast.dismiss();
+      //   toast.success("Message sent successfully");
+      // }
     } catch (error) {
       console.error(error);
       toast.error(`${error} Failed to send message`);
@@ -128,7 +131,7 @@ const ChatInput = ({ chatId }: Props) => {
               <FormControl>
                 <Input
                   placeholder={`Ask Gemini`}
-                  disabled={!session}
+                  disabled={loading}
                   {...field}
                   // onKeyDown={handleKeyDown}
                   className="px-8 mb-1.5 focus:outline-3 focus:outline-hidden focus:outline-blue-500 bg-muted text-base border-none placeholder:text-muted-foreground overflow-hidden rounded-2xl disabled:cursor-not-allowed disabled:text-gray-300"
@@ -188,7 +191,7 @@ const ChatInput = ({ chatId }: Props) => {
           type="submit"
           variant={"ghost"}
           size={"icon"}
-          disabled={!session || loading}
+          disabled={loading}
           className="hover:opacity-50 font-bold p-1.5 absolute bottom-1 right-0  rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
           <SendIcon size={14} />
         </Button>

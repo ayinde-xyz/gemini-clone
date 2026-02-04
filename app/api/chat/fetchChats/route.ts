@@ -13,7 +13,7 @@ export async function GET() {
       return notFound();
     }
     const chats = await getChats(session);
-    console.log("API CHATs:", chats);
+    // console.log("API CHATs:", chats);
     return NextResponse.json(chats || []);
   } catch (error) {
     return NextResponse.json({ error });

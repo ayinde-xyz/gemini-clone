@@ -1,23 +1,19 @@
+"use client";
 import Message from "@/components/chat/message";
 import ToggleButton from "@/components/chat/togglebutton";
 import { EmptyChat } from "@/components/chat/emptychat";
-
 import { cn } from "@/lib/utils";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
-import { db } from "@/lib/firebase/firebase";
-import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import axios from "axios";
+import useSWR from "swr";
+import { Message as MessageType } from "@/drizzle/schema";
 
 type Props = {
   chatId?: string;
 };
-const Chat = async ({ chatId }: Props) => {
-  // const { data: session } = useSession();
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-  // console.log(session);
 
+const fetcher = (url: string) => axios.get(url).then((res) => res.data);
+
+const Chat = ({ chatId }: Props) => {
   if (!chatId)
     return (
       <div className="flex-1 overflew-y-auto overflow-x-hidden">
@@ -25,21 +21,27 @@ const Chat = async ({ chatId }: Props) => {
         <EmptyChat />
       </div>
     );
-  const messages = await getDocs(
-    query(
-      collection(db, "users", session?.user?.id!, "chats", chatId!, "messages"),
-      orderBy("createdAt", "asc"),
-    ),
+
+  const {
+    data: messages,
+    error,
+    isLoading,
+  } = useSWR<MessageType[]>(
+    `/api/chat/fetchMessages?chatId=${chatId}`,
+    fetcher,
   );
+
+  console.log("messages", messages);
 
   return (
     <div className="flex-1 overflow-y-auto overflow-x-hidden">
       <ToggleButton />
-      {messages?.empty && <EmptyChat />}
-      <div className={cn("flex flex-col", messages?.empty && "hidden")}>
-        {messages?.docs.map((message) => (
-          <Message key={message.id} message={message.data()} />
-        ))}
+      {!messages?.length && <EmptyChat />}
+      <div className={cn("flex flex-col", !messages?.length && "hidden")}>
+        {messages &&
+          messages.map((message) => (
+            <Message key={message.id} message={message} />
+          ))}
       </div>
     </div>
   );

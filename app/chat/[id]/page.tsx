@@ -15,6 +15,7 @@ const ChatPage = async ({ params }: Props) => {
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+
   if (!session || !session.user) {
     return notFound();
   }
