@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { genkitResponse } from "@/actions/genkit";
+import { genkitResponse } from "@/actions/prompt";
 import { uploadFile } from "@/actions/upload";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,7 +28,6 @@ import { Plus, SendIcon } from "lucide-react";
 import { toast } from "sonner";
 import { notFound, useRouter } from "next/navigation";
 import axios from "axios";
-import { addMessage } from "@/actions/newchat";
 
 type Props = {
   chatId: string;
@@ -74,12 +73,12 @@ const ChatInput = ({ chatId }: Props) => {
       toast.loading("Sending message...");
       const { prompt, model, file } = values;
 
-      // await axios.post("/api/chat/addMessage", {
-      //   chatId,
-      //   prompt,
-      // });
+      await axios.post("/api/chat/addMessage", {
+        chatId,
+        prompt,
+      });
 
-      await addMessage(prompt, chatId);
+      router.refresh();
 
       // const input = prompt.trim();
 

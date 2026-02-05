@@ -1,3 +1,4 @@
+"use server";
 import "server-only";
 import { db } from "@/drizzle";
 import { type Chat, chat, message } from "@/drizzle/schema";
@@ -21,23 +22,6 @@ export const getMessagesByChatId = async (chatId: string) => {
     .from(message)
     .where(eq(message.chatId, chatId))
     .orderBy(asc(message.createdAt));
-
-  return response;
-};
-
-export const addMessage = async (prompt: string, chatId: string) => {
-  const response = await db
-    .insert(message)
-    .values({
-      parts: prompt,
-      chatId,
-      attachments: [],
-      role: "user",
-      createdAt: new Date(),
-    })
-    .returning({
-      id: message.id,
-    });
 
   return response;
 };
