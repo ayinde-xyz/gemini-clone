@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
-    const { chatId, prompt } = body;
+    const { chatId, prompt, role } = body;
 
     await db
       .insert(message)
@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         parts: prompt,
         chatId,
         attachments: [],
-        role: "user",
+        role,
         createdAt: new Date(),
       })
       .returning({

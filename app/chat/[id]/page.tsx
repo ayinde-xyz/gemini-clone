@@ -21,7 +21,7 @@ const ChatPage = async ({ params }: Props) => {
   }
 
   return (
-    <div className="flex flex-col">
+    <div className="w-full flex flex-col overflow-hidden h-screen">
       <Chat chatId={id} />
       <ChatInput chatId={id} />
     </div>

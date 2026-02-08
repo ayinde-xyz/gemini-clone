@@ -4,8 +4,6 @@ import { db } from "@/drizzle";
 import { type Chat, chat, message } from "@/drizzle/schema";
 import { Session } from "@/lib/auth-client";
 import { asc, eq } from "drizzle-orm";
-import axios from "axios";
-import { revalidatePath } from "next/cache";
 
 export const getChats = async (session: Session) => {
   const response = await db

@@ -1,13 +1,4 @@
 "use server";
-import { genkit, z } from "genkit";
-import {
-  gemini10Pro,
-  gemini15Flash,
-  gemini15Flash8b,
-  gemini15Pro,
-  gemini20Flash,
-  googleAI,
-} from "@genkit-ai/googleai";
 import { Message, MessageHistory } from "@/typings";
 import admin from "firebase-admin";
 import { adminDb } from "@/lib/firebase/firebaseAdmin";
@@ -15,47 +6,38 @@ import { Session } from "@/lib/auth-client";
 import { FileMetadataResponse } from "@google/generative-ai/server";
 import { revalidatePath } from "next/cache";
 import { ModelType } from "@/schemas";
-import { createAgent, tool } from "langchain";
 import * as z from "zod";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import axios from "axios";
+import { BaseMessage } from "@langchain/core/messages";
 
 // const ai = genkit({
 //   plugins: [googleAI()],
 // });
 
-const modelEngines = {
-  "Gemini 1.0 Pro": gemini10Pro,
-  "Gemini 1.5 Pro": gemini15Pro,
-  "Gemini 1.5 Flash": gemini15Flash,
-  "Gemini 1.5 Flash-8b": gemini15Flash8b,
-  "Gemini 2.0 Flash-Experimental": gemini20Flash,
-};
-
-export const genkitResponse = async (
-  prompt: string,
-  session: Session,
-  chatId: string,
-  model: ModelType,
-  response: FileMetadataResponse | undefined,
+export const aiResponse = async (
+  input: string,
+  // session?: Session,
+  chatId?: string,
+  // model?: ModelType,
+  // response?: FileMetadataResponse | undefined,
 ) => {
-  
-  const getWeather = tool((input) => `It's always sunny in ${input.city}!`, {
-    name: "get_weather",
-    description: "Get the weather for a given city",
-    schema: z.object({
-      city: z.string().describe("The city to get the weather for"),
-    }),
+  const model = new ChatGoogleGenerativeAI({
+    model: "gemini-2.5-flash",
+    maxOutputTokens: 2048,
   });
 
-  const agent = createAgent({
-    model: "claude-sonnet-4-5-20250929",
-    tools: [getWeather],
-  });
+  const response = await model.invoke([["human", input]]);
 
-  console.log(
-    await agent.invoke({
-      messages: [{ role: "user", content: "What's the weather in Tokyo?" }],
-    }),
-  );
+  console.log("AI Response:", response.content);
+
+  // const baseUrl =
+  //   process.env.NEXT_PUBLIC_BASE_URL ||
+  //   process.env.NEXTAUTH_URL ||
+  //   `http://localhost:${process.env.PORT || 3000}`;
+
+  // revalidatePath(`/api/chats/${chatId}`);
+  return response.content;
 };
 
 // const messageHistory: MessageHistory[] = [];

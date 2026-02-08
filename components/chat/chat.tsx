@@ -16,7 +16,7 @@ type Props = {
 const Chat = async ({ chatId }: Props) => {
   if (!chatId)
     return (
-      <div className="flex-1 overflew-y-auto overflow-x-hidden">
+      <div className="flex-1 overflew-y-auto ">
         <ToggleButton />
         <EmptyChat />
       </div>

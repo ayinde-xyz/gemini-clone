@@ -20,14 +20,22 @@ import {
 } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { genkitResponse } from "@/actions/prompt";
+import { aiResponse } from "@/actions/prompt";
 import { uploadFile } from "@/actions/upload";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, SendIcon } from "lucide-react";
 import { toast } from "sonner";
 import { notFound, useRouter } from "next/navigation";
 import axios from "axios";
+import { Field, FieldGroup } from "../ui/field";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+  InputGroupText,
+  InputGroupTextarea,
+} from "../ui/input-group";
 
 type Props = {
   chatId: string;
@@ -76,6 +84,15 @@ const ChatInput = ({ chatId }: Props) => {
       await axios.post("/api/chat/addMessage", {
         chatId,
         prompt,
+        role: "user",
+      });
+
+      const response = await aiResponse(prompt, chatId);
+
+      await axios.post(`/api/chat/addMessage`, {
+        chatId,
+        prompt: response,
+        role: "model",
       });
 
       router.refresh();
@@ -122,27 +139,32 @@ const ChatInput = ({ chatId }: Props) => {
   };
 
   return (
-    <Form {...form}>
-      <form
-        onSubmit={form.handleSubmit(sendMessage)}
-        className="flex  w-full max-w-2xl mx-auto relative rounded-2xl md:px-0 text-sm">
-        <FormField
+    <form
+      onSubmit={form.handleSubmit(sendMessage)}
+      className="   w-full max-w-2xl mx-auto  rounded-2xl  text-sm">
+      <FieldGroup>
+        <Controller
           control={form.control}
           name="prompt"
-          render={({ field }) => (
-            <FormItem className="w-full">
-              <FormControl>
-                <Input
-                  placeholder={`Ask Gemini`}
+          render={({ field, fieldState }) => (
+            <Field className=" max-w-2xl bg-slate-200 rounded-2xl p-3">
+              <InputGroup className="h-auto ">
+                <InputGroupTextarea
                   disabled={loading}
                   {...field}
-                  // onKeyDown={handleKeyDown}
-                  className="px-8 mb-1.5 focus:outline-3 focus:outline-hidden focus:outline-blue-500 bg-muted text-base border-none placeholder:text-muted-foreground overflow-hidden rounded-2xl disabled:cursor-not-allowed disabled:text-gray-300"
+                  aria-invalid={fieldState.invalid}
+                  id="block-end-input"
+                  placeholder="Ask Gemini"
+                  className=""
                 />
-              </FormControl>
-            </FormItem>
+                <InputGroupAddon align="block-end">
+                  <InputGroupText>USD</InputGroupText>
+                </InputGroupAddon>
+              </InputGroup>
+            </Field>
           )}
         />
+
         {/* <FormField
           control={form.control}
           name="model"
@@ -198,8 +220,8 @@ const ChatInput = ({ chatId }: Props) => {
           className="hover:opacity-50 font-bold p-1.5 absolute bottom-1 right-0  rounded disabled:bg-gray-300 disabled:cursor-not-allowed">
           <SendIcon size={14} />
         </Button>
-      </form>
-    </Form>
+      </FieldGroup>
+    </form>
   );
 };
 
