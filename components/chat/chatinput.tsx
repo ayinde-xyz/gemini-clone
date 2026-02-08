@@ -1,5 +1,4 @@
 "use client";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { useSession } from "@/lib/auth-client";
 import { useRef, useState } from "react";
 import { db } from "@/lib/firebase/firebase";
@@ -24,7 +23,7 @@ import { aiResponse } from "@/actions/prompt";
 import { uploadFile } from "@/actions/upload";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, SendIcon } from "lucide-react";
+import { PaperclipIcon, SendIcon } from "lucide-react";
 import { toast } from "sonner";
 import { notFound, useRouter } from "next/navigation";
 import axios from "axios";
@@ -141,7 +140,7 @@ const ChatInput = ({ chatId }: Props) => {
   return (
     <form
       onSubmit={form.handleSubmit(sendMessage)}
-      className="   w-full max-w-2xl mx-auto  rounded-2xl  text-sm">
+      className="relative bg-transparent w-full max-w-2xl mx-auto  rounded-2xl  text-sm">
       <FieldGroup>
         <Controller
           control={form.control}
@@ -155,10 +154,11 @@ const ChatInput = ({ chatId }: Props) => {
                   aria-invalid={fieldState.invalid}
                   id="block-end-input"
                   placeholder="Ask Gemini"
-                  className=""
                 />
                 <InputGroupAddon align="block-end">
-                  <InputGroupText>USD</InputGroupText>
+                  <InputGroupText className="tabular-nums">
+                    {field.value.length}/100 characters
+                  </InputGroupText>
                 </InputGroupAddon>
               </InputGroup>
             </Field>
@@ -175,43 +175,37 @@ const ChatInput = ({ chatId }: Props) => {
             </FormItem>
           )}
         /> */}
-        {/* <FormField
+        <Controller
           control={form.control}
           name="file"
           render={({ field }) => (
-            <FormItem className="rounded-full space-y-0 absolute top-0 left-0.5 h-fit">
-              <FormControl>
-                <Button
-                  variant={"ghost"}
-                  size={"icon"}
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={form.watch("model") === "Gemini 1.0 Pro"}>
-                  <Plus size={14} />
-                  <Input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={async (e) => {
-                      if (e.target.files && e.target.files[0]) {
-                        const uploadedResult = await handleUpload(
-                          e.target.files[0],
-                        );
-                        field.onChange(uploadedResult);
-                      }
-                    }}
-                    disabled={
-                      !session ||
-                      loading ||
-                      form.watch("model") === "Gemini 1.0 Pro"
+            <Field className="rounded-full space-y-0 absolute bottom-1 right-10 w-4 h-fit">
+              <Button
+                variant={"ghost"}
+                size={"icon"}
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={form.watch("model") === "Gemini 1.0 Pro"}>
+                <PaperclipIcon size={14} />
+                <Input
+                  type="file"
+                  ref={fileInputRef}
+                  onChange={async (e) => {
+                    if (e.target.files && e.target.files[0]) {
+                      const uploadedResult = await handleUpload(
+                        e.target.files[0],
+                      );
+                      field.onChange(uploadedResult);
                     }
-                    className="fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none"
-                    tabIndex={-1}
-                  />
-                </Button>
-              </FormControl>
-            </FormItem>
+                  }}
+                  disabled={loading || form.watch("model") === "Gemini 1.0 Pro"}
+                  className="fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none"
+                  tabIndex={-1}
+                />
+              </Button>
+            </Field>
           )}
-        /> */}
+        />
         <Button
           type="submit"
           variant={"ghost"}

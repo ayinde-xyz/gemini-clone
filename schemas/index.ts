@@ -17,7 +17,10 @@ export const ResetSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email" }),
 });
 export const ChatSchema = z.object({
-  prompt: z.string().min(1, { message: "Please enter a valid prompt" }),
+  prompt: z
+    .string()
+    .min(1, { message: "Please enter a valid prompt" })
+    .max(100, "Description must be at most 100 characters."),
   // chatId: z.string().min(1, { message: "Please enter a valid chat ID" }),
   // model: z.string().min(1, { message: "Please enter a valid model" }),
   file: z
