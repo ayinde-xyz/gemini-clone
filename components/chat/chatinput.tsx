@@ -1,22 +1,12 @@
 "use client";
 import { useSession } from "@/lib/auth-client";
 import { useRef, useState } from "react";
-import { db } from "@/lib/firebase/firebase";
-
-import { Message } from "@/typings";
 import {
   ChatSchema,
   ChatSchemaType,
   FileSchema,
   FileSchemaType,
 } from "@/schemas";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { aiResponse } from "@/actions/prompt";
@@ -25,16 +15,16 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PaperclipIcon, SendIcon } from "lucide-react";
 import { toast } from "sonner";
-import { notFound, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import axios from "axios";
-import { Field, FieldGroup } from "../ui/field";
+import { Field, FieldGroup, FieldSet } from "../ui/field";
 import {
   InputGroup,
   InputGroupAddon,
-  InputGroupInput,
   InputGroupText,
   InputGroupTextarea,
 } from "../ui/input-group";
+import ModelSelection from "./modelselection";
 
 type Props = {
   chatId: string;
@@ -88,7 +78,7 @@ const ChatInput = ({ chatId }: Props) => {
 
       const response = await aiResponse(prompt, chatId);
 
-      await axios.post(`/api/chat/addMessage`, {
+      await axios.post("/api/chat/addMessage", {
         chatId,
         prompt: response,
         role: "model",
@@ -165,16 +155,15 @@ const ChatInput = ({ chatId }: Props) => {
           )}
         />
 
-        {/* <FormField
+        <Controller
           control={form.control}
           name="model"
-          render={({ field }) => (
-            <FormItem className="fixed translate-x-1/2 top-0 right-1/2 bg-slate-100  rounded-b-lg">
-              <ModelSelection field={field} />
-              <FormMessage />
-            </FormItem>
+          render={({ field, fieldState }) => (
+            <FieldSet className="absolute bottom-1 right-18 w-6 rounded-b-lg">
+              <ModelSelection field={field} fieldState={fieldState} />
+            </FieldSet>
           )}
-        /> */}
+        />
         <Controller
           control={form.control}
           name="file"

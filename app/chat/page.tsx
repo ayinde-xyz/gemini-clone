@@ -13,7 +13,7 @@ const ChatPage = async () => {
   }
   // console.log(session);
   return (
-    <div className="flex flex-col overflow-hidden h-screen">
+    <div className="flex flex-col overflow-hidden w-full h-screen">
       {/* Chat */}
       <Chat />
     </div>
