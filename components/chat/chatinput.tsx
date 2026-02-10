@@ -160,7 +160,11 @@ const ChatInput = ({ chatId }: Props) => {
           name="model"
           render={({ field, fieldState }) => (
             <FieldSet className="absolute bottom-1 right-18 w-6 rounded-b-lg">
-              <ModelSelection field={field} fieldState={fieldState} />
+              <ModelSelection
+                field={field}
+                fieldState={fieldState}
+                isSidebar={false}
+              />
             </FieldSet>
           )}
         />

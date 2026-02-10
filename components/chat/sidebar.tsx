@@ -16,6 +16,8 @@ import { Chat } from "@/drizzle/schema";
 import { redirect } from "next/navigation";
 import useSWR from "swr";
 import axios from "axios";
+import { Skeleton } from "../ui/skeleton";
+import ModelSelection from "./modelselection";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
@@ -42,15 +44,21 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
+          <SidebarGroupLabel>Select a Model</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <ModelSelection isSidebar />
+          </SidebarGroupContent>
+        </SidebarGroup>
+        <SidebarGroup>
           <SidebarGroupLabel>Chats</SidebarGroupLabel>
           <SidebarGroupContent>
             <div className="flex-1">
               <div className="flex flex-col space-y-2 my-2">
-                {/* {loading && (
+                {isLoading && (
                   <div className="animate-pulse text-center text-white">
-                    <p>Loading Chats...</p>
+                    <Skeleton className="h-20 w-30" />
                   </div>
-                )} */}
+                )}
                 {chats?.map((chat) => (
                   <SidebarMenu key={chat.id}>
                     <SidebarMenuButton asChild>

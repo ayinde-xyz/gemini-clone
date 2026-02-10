@@ -15,16 +15,82 @@ import {
   FieldContent,
   FieldDescription,
   FieldLabel,
-  FieldSet,
   FieldTitle,
 } from "../ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectSeparator,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 type Model = {
   field: ControllerRenderProps<ChatSchemaType, "model">;
   fieldState: ControllerFieldState;
+  isSidebar: boolean;
 };
 
-const ModelSelection = ({ field, fieldState }: Model) => {
+const models = [
+  {
+    title: "Gemini 3 Pro",
+    value: "gemini-3-pro-preview",
+    description: "The best model in the world for multimodal understanding",
+  },
+  {
+    title: "Gemini 3 Flash",
+    value: "gemini-3-flash-preview",
+    description:
+      "Our most balanced model built for speed, scale, and frontier intelligence.",
+  },
+  {
+    title: "Gemini 2.5 Flash",
+    value: "gemini-2.5-flash",
+    description:
+      "Our best model in terms of price-performance, offering well-rounded capabilities",
+  },
+  {
+    title: "Gemini 2.5 Flash-Lite",
+    value: "gemini-2.5-flash-lite",
+    description:
+      "Our fastest flash model optimized for cost-efficiency and high throughput.",
+  },
+  {
+    title: "Gemini 2.5 Pro",
+    value: "gemini-2.5-pro",
+    description:
+      "Our state-of-the-art thinking model, capable of reasoning over complex problems ",
+  },
+];
+
+const ModelSelection = ({ field, fieldState, isSidebar }: Model) => {
+  if (isSidebar) {
+    return (
+      <Field>
+        <FieldContent>
+          <FieldLabel>Select a Model</FieldLabel>
+        </FieldContent>
+        <Select
+          name={field.name}
+          value={field.value}
+          onValueChange={field.onChange}>
+          <SelectTrigger aria-invalid={fieldState.invalid} className="min-w-30">
+            <SelectValue placeholder="Select" />
+          </SelectTrigger>
+          <SelectContent position="item-aligned">
+            <SelectItem value="auto">Auto</SelectItem>
+            <SelectSeparator />
+            {models.map((model) => (
+              <SelectItem key={model.value} value={model.value}>
+                {model.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </Field>
+    );
+  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -35,7 +101,7 @@ const ModelSelection = ({ field, fieldState }: Model) => {
           <BotIcon size={14} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="absolute top-0 w-60 md:w-70 left-40 bg-slate-100">
+      <DropdownMenuContent className="absolute top-0  right-0 w-60 md:w-70  bg-slate-100">
         <DropdownMenuLabel>Select a model</DropdownMenuLabel>
         {/* <FieldSet> */}
         <RadioGroup
@@ -44,126 +110,22 @@ const ModelSelection = ({ field, fieldState }: Model) => {
           // className="flex flex-col space-y-1"
           onValueChange={field.onChange}
           defaultValue="0">
-          <FieldLabel>
-            <Field orientation="horizontal" data-invalid={fieldState.invalid}>
-              <FieldContent>
-                <FieldTitle>Gemini 1.0 Pro</FieldTitle>
-                <FieldDescription>Doesnt support file input</FieldDescription>
-              </FieldContent>
-              <RadioGroupItem value="Gemini 1.0 Pro" />
-            </Field>
-          </FieldLabel>
-          <FieldLabel>
-            <Field orientation="horizontal" data-invalid={fieldState.invalid}>
-              <FieldContent>
-                <FieldTitle>Gemini 1.5 Pro</FieldTitle>
-                <FieldDescription>Supports file input</FieldDescription>
-              </FieldContent>
-              <RadioGroupItem value="Gemini 1.5 Pro" />
-            </Field>
-          </FieldLabel>
-          <FieldLabel>
-            <Field orientation="horizontal" data-invalid={fieldState.invalid}>
-              <FieldContent>
-                <FieldTitle>Gemini 1.5 Flash</FieldTitle>
-                <FieldDescription>Fast and efficient</FieldDescription>
-              </FieldContent>
-              <RadioGroupItem value="Gemini 1.5 Flash" />
-            </Field>
-          </FieldLabel>
-          <FieldLabel>
-            <Field orientation="horizontal" data-invalid={fieldState.invalid}>
-              <FieldContent>
-                <FieldTitle>Gemini 1.5 Flash-8b</FieldTitle>
-                <FieldDescription>
-                  Smaller model with less memory usage
-                </FieldDescription>
-              </FieldContent>
-              <RadioGroupItem value="Gemini 1.5 Flash-8b" />
-            </Field>
-          </FieldLabel>
-
-          <FieldLabel>
-            <Field orientation="horizontal" data-invalid={fieldState.invalid}>
-              <FieldContent>
-                <FieldTitle>Gemini 2.0 Flash-Experimental</FieldTitle>
-                <FieldDescription>
-                  Experimental model with new features
-                </FieldDescription>
-              </FieldContent>
-              <RadioGroupItem value="Gemini 2.0 Flash-Experimental" />
-            </Field>
-          </FieldLabel>
+          {models.map((model) => (
+            <FieldLabel>
+              <Field orientation="horizontal" data-invalid={fieldState.invalid}>
+                <FieldContent>
+                  <FieldTitle>{model.title}</FieldTitle>
+                  <FieldDescription>{model.description}</FieldDescription>
+                </FieldContent>
+                <RadioGroupItem value={model.value} />
+              </Field>
+            </FieldLabel>
+          ))}
         </RadioGroup>
         {/* </FieldSet> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
 };
-
-// return (
-//   <Dialog>
-//     <DialogTrigger asChild>
-//       <Button type="button" variant={"ghost"}>
-//         {field.value
-//           ? field.value.charAt(0).toUpperCase() + field.value.slice(1)
-//           : "Select a model"}
-//         <ChevronsDownIcon size={14} />
-//       </Button>
-//     </DialogTrigger>
-//     <DialogContent>
-//       <div className="mx-auto w-full max-w-sm">
-//         <DialogHeader>
-//           <DialogTitle>Select a model</DialogTitle>
-//           <DialogDescription>Please kindly select a model</DialogDescription>
-//         </DialogHeader>
-//         <div className="p-4 pb-0">
-//           <FormControl>
-//             <RadioGroup
-//               {...field}
-//               value={field.value}
-//               className="flex flex-col space-y-1"
-//               onValueChange={field.onChange}
-//               defaultValue="0">
-//               <FormItem className="flex items-center space-x-3 justify-between">
-//                 <div>
-//                   <FormLabel>Gemini 1.0 Pro</FormLabel>
-//                   <FormDescription>Doesnt support File input</FormDescription>
-//                 </div>
-//                 <FormControl>
-//                   <RadioGroupItem value="Gemini 1.0 Pro" />
-//                 </FormControl>
-//               </FormItem>
-//               <FormItem className="flex items-center justify-between">
-//                 <FormLabel>Gemini 1.5 Pro</FormLabel>
-//                 <FormControl>
-//                   <RadioGroupItem value="Gemini 1.5 Pro" />
-//                 </FormControl>
-//               </FormItem>
-//               <FormItem className="flex items-center justify-between">
-//                 <FormLabel>Gemini 1.5 Flash</FormLabel>
-//                 <FormControl>
-//                   <RadioGroupItem value="Gemini 1.5 Flash" />
-//                 </FormControl>
-//               </FormItem>
-//               <FormItem className="flex items-center justify-between">
-//                 <FormLabel>Gemini 1.5 Flash-8b</FormLabel>
-//                 <FormControl>
-//                   <RadioGroupItem value="Gemini 1.5 Flash-8b" />
-//                 </FormControl>
-//               </FormItem>
-//               <FormItem className="flex items-center justify-between">
-//                 <FormLabel>Gemini 2.0 Flash-Experimental</FormLabel>
-//                 <FormControl>
-//                   <RadioGroupItem value="Gemini 2.0 Flash-Experimental" />
-//                 </FormControl>
-//               </FormItem>
-//             </RadioGroup>
-//           </FormControl>
-//         </div>
-//       </div>
-//     </DialogContent>
-//   </Dialog>
-// );
 
 export default ModelSelection;
