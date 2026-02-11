@@ -30,11 +30,11 @@ export const ChatSchema = z.object({
     })
     .optional(),
   model: z.enum([
-    "Gemini 1.0 Pro",
-    "Gemini 1.5 Pro",
-    "Gemini 1.5 Flash",
-    "Gemini 1.5 Flash-8b",
-    "Gemini 2.0 Flash-Experimental",
+    "gemini-3-pro-preview",
+    "gemini-3-flash-preview",
+    "gemini-2.5-flash",
+    "gemini-2.5-flash-lite",
+    "gemini-2.5-pro",
   ]),
 
   // file: z.instanceof(FileMetadataResponse).optional(),

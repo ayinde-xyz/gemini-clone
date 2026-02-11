@@ -1,6 +1,6 @@
 "use client";
 import { useSession } from "@/lib/auth-client";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   ChatSchema,
   ChatSchemaType,
@@ -25,6 +25,7 @@ import {
   InputGroupTextarea,
 } from "../ui/input-group";
 import ModelSelection from "./modelselection";
+import useModel from "@/hooks/use-model";
 
 type Props = {
   chatId: string;
@@ -33,14 +34,18 @@ const ChatInput = ({ chatId }: Props) => {
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const store = useModel();
+
   const form = useForm<ChatSchemaType>({
     resolver: zodResolver(ChatSchema),
     defaultValues: {
       prompt: "",
-      model: "Gemini 1.5 Pro",
+      model: store.model,
       file: undefined,
     },
   });
+
+  // Keep form model in sync when store changes (e.g., sidebar selection)
 
   const handleUpload = async (file: FileSchemaType) => {
     setLoading(true);
@@ -158,15 +163,21 @@ const ChatInput = ({ chatId }: Props) => {
         <Controller
           control={form.control}
           name="model"
-          render={({ field, fieldState }) => (
-            <FieldSet className="absolute bottom-1 right-18 w-6 rounded-b-lg">
-              <ModelSelection
-                field={field}
-                fieldState={fieldState}
-                isSidebar={false}
-              />
-            </FieldSet>
-          )}
+          render={({ field, fieldState }) => {
+            const handleChange = (v: ChatSchemaType["model"]) => {
+              field.onChange(v);
+              store.setModel(v);
+            };
+            return (
+              <FieldSet className="absolute bottom-1 right-18 w-6 rounded-b-lg">
+                <ModelSelection
+                  field={{ ...field, onChange: handleChange }}
+                  fieldState={fieldState}
+                  isSidebar={false}
+                />
+              </FieldSet>
+            );
+          }}
         />
         <Controller
           control={form.control}
@@ -178,7 +189,7 @@ const ChatInput = ({ chatId }: Props) => {
                 size={"icon"}
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={form.watch("model") === "Gemini 1.0 Pro"}>
+                disabled={form.watch("model") === "gemini-2.5-flash-lite"}>
                 <PaperclipIcon size={14} />
                 <Input
                   type="file"
@@ -191,7 +202,9 @@ const ChatInput = ({ chatId }: Props) => {
                       field.onChange(uploadedResult);
                     }
                   }}
-                  disabled={loading || form.watch("model") === "Gemini 1.0 Pro"}
+                  disabled={
+                    loading || form.watch("model") === "gemini-2.5-flash-lite"
+                  }
                   className="fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none"
                   tabIndex={-1}
                 />

@@ -27,8 +27,8 @@ import {
 } from "../ui/select";
 
 type Model = {
-  field: ControllerRenderProps<ChatSchemaType, "model">;
-  fieldState: ControllerFieldState;
+  field?: ControllerRenderProps<ChatSchemaType, "model">;
+  fieldState?: ControllerFieldState;
   isSidebar: boolean;
 };
 
@@ -64,7 +64,16 @@ const models = [
   },
 ];
 
+import useModel from "@/hooks/use-model";
+
 const ModelSelection = ({ field, fieldState, isSidebar }: Model) => {
+  const store = useModel();
+  const value = field?.value ?? store.model;
+  const onChange = (v: ChatSchemaType["model"]) => {
+    if (field?.onChange) field.onChange(v);
+    store.setModel(v);
+  };
+
   if (isSidebar) {
     return (
       <Field>
@@ -72,10 +81,13 @@ const ModelSelection = ({ field, fieldState, isSidebar }: Model) => {
           <FieldLabel>Select a Model</FieldLabel>
         </FieldContent>
         <Select
-          name={field.name}
-          value={field.value}
-          onValueChange={field.onChange}>
-          <SelectTrigger aria-invalid={fieldState.invalid} className="min-w-30">
+          name={field?.name}
+          value={value}
+          onValueChange={onChange}
+          defaultValue="gemini-3-flash-preview">
+          <SelectTrigger
+            aria-invalid={fieldState?.invalid}
+            className="min-w-30">
             <SelectValue placeholder="Select" />
           </SelectTrigger>
           <SelectContent position="item-aligned">
@@ -91,28 +103,25 @@ const ModelSelection = ({ field, fieldState, isSidebar }: Model) => {
       </Field>
     );
   }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button type="button" size="icon" variant={"ghost"}>
-          {/* {field.value
-            ? field.value.charAt(0).toUpperCase() + field.value.slice(1)
-            : "Select a model"} */}
           <BotIcon size={14} />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="absolute top-0  right-0 w-60 md:w-70  bg-slate-100">
         <DropdownMenuLabel>Select a model</DropdownMenuLabel>
-        {/* <FieldSet> */}
         <RadioGroup
-          {...field}
-          value={field.value}
-          // className="flex flex-col space-y-1"
-          onValueChange={field.onChange}
-          defaultValue="0">
+          value={value}
+          onValueChange={onChange}
+          defaultValue={"gemini-3-flash-preview"}>
           {models.map((model) => (
-            <FieldLabel>
-              <Field orientation="horizontal" data-invalid={fieldState.invalid}>
+            <FieldLabel key={model.value}>
+              <Field
+                orientation="horizontal"
+                data-invalid={fieldState?.invalid}>
                 <FieldContent>
                   <FieldTitle>{model.title}</FieldTitle>
                   <FieldDescription>{model.description}</FieldDescription>
@@ -122,7 +131,6 @@ const ModelSelection = ({ field, fieldState, isSidebar }: Model) => {
             </FieldLabel>
           ))}
         </RadioGroup>
-        {/* </FieldSet> */}
       </DropdownMenuContent>
     </DropdownMenu>
   );
