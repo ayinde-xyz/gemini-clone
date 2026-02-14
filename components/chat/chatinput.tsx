@@ -1,6 +1,5 @@
 "use client";
-import { useSession } from "@/lib/auth-client";
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState } from "react";
 import {
   ChatSchema,
   ChatSchemaType,
@@ -136,6 +135,7 @@ const ChatInput = ({ chatId }: Props) => {
     <form
       onSubmit={form.handleSubmit(sendMessage)}
       className="relative bg-transparent w-full max-w-2xl mx-auto  rounded-2xl  text-sm">
+      <div className="absolute -top-15 inset-x-0 h-15 bg-linear-to-t from-white via-white/50 to-transparent pointer-events-none blur-sm" />
       <FieldGroup>
         <Controller
           control={form.control}
@@ -148,7 +148,7 @@ const ChatInput = ({ chatId }: Props) => {
                   {...field}
                   aria-invalid={fieldState.invalid}
                   id="block-end-input"
-                  placeholder="Ask Gemini"
+                  placeholder="Ask Neuralis"
                 />
                 <InputGroupAddon align="block-end">
                   <InputGroupText className="tabular-nums">

@@ -21,8 +21,7 @@ const useModel = create<ModelState>()(
     }),
     {
       name: "neuralis-model-storage", // key in localStorage (optional)
-      getStorage: () =>
-        typeof window !== "undefined" ? localStorage : undefined,
+      storage: typeof window !== "undefined" ? localStorage : undefined,
     },
   ),
 );

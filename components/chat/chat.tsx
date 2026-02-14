@@ -1,11 +1,8 @@
 import Message from "@/components/chat/message";
-import ToggleButton from "@/components/chat/togglebutton";
 import { EmptyChat } from "@/components/chat/emptychat";
 import { cn } from "@/lib/utils";
-import axios from "axios";
-import useSWR from "swr";
-import { Message as MessageType } from "@/drizzle/schema";
 import { getMessagesByChatId } from "@/actions/newchat";
+import ChatHeader from "./chatheader";
 
 type Props = {
   chatId?: string;
@@ -17,7 +14,7 @@ const Chat = async ({ chatId }: Props) => {
   if (!chatId)
     return (
       <div className="flex-1 overflew-y-auto ">
-        <ToggleButton />
+        <ChatHeader />
         <EmptyChat />
       </div>
     );
@@ -34,8 +31,9 @@ const Chat = async ({ chatId }: Props) => {
   const messages = await getMessagesByChatId(chatId);
 
   return (
-    <div className="flex-1 overflow-y-auto overflow-x-hidden">
-      <ToggleButton />
+    <div className="flex-1 overflow-y-auto overflow-x-hidden relative">
+      <ChatHeader messages={messages} />
+
       {!messages?.length && <EmptyChat />}
       <div className={cn("flex flex-col", !messages?.length && "hidden")}>
         {messages &&

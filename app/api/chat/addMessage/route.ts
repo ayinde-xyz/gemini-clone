@@ -1,6 +1,7 @@
 import { db } from "@/drizzle";
-import { message } from "@/drizzle/schema";
+import { chat, message } from "@/drizzle/schema";
 import { auth } from "@/lib/auth";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
@@ -19,10 +20,18 @@ export async function POST(request: NextRequest) {
 
     const { chatId, prompt, role } = body;
 
+    const checkMessageWithId = await db.query.message.findMany({
+      where: (message, { eq }) => eq(message.chatId, chatId),
+    });
+
+    if (!checkMessageWithId.length) {
+      await db.update(chat).set({ title: prompt }).where(eq(chat.id, chatId));
+    }
+
     await db
       .insert(message)
       .values({
-        parts: prompt,
+        content: prompt,
         chatId,
         attachments: [],
         role,

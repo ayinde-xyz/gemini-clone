@@ -16,8 +16,8 @@ const Message = ({ message }: Props) => {
             isGemini &&
             "order-first bg-linear-to-bl  from-sky-500 to-indigo-500"
           }`}>
-          <p>{String(message.parts)}</p>
-          {isGemini && <CopyButton text={String(message.parts)} />}
+          <p>{message.content}</p>
+          {isGemini && <CopyButton text={message.content} />}
         </div>
       </div>
     </div>

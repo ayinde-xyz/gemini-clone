@@ -1,15 +1,10 @@
 "use server";
-import { Message, MessageHistory } from "@/typings";
-import admin from "firebase-admin";
-import { adminDb } from "@/lib/firebase/firebaseAdmin";
 import { Session } from "@/lib/auth-client";
 import { FileMetadataResponse } from "@google/generative-ai/server";
 import { revalidatePath } from "next/cache";
 import { ModelType } from "@/schemas";
 import * as z from "zod";
 import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
-import axios from "axios";
-import { BaseMessage } from "@langchain/core/messages";
 
 // const ai = genkit({
 //   plugins: [googleAI()],

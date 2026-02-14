@@ -18,6 +18,8 @@ import useSWR from "swr";
 import axios from "axios";
 import { Skeleton } from "../ui/skeleton";
 import ModelSelection from "./modelselection";
+import { useSession } from "@/lib/auth-client";
+import { SignOut } from "../auth/signout";
 
 const fetcher = (url: string) => axios.get(url).then((res) => res.data);
 const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
@@ -25,6 +27,7 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
     const newChatId = await axios.get("/api/chat/createNewChat");
     redirect(`/chat/${newChatId.data.id}`);
   };
+  const session = useSession();
 
   const {
     data: chats,
@@ -55,8 +58,10 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
             <div className="flex-1">
               <div className="flex flex-col space-y-2 my-2">
                 {isLoading && (
-                  <div className="animate-pulse text-center text-white">
-                    <Skeleton className="h-20 w-30" />
+                  <div className="animate-pulse text-center flex flex-col space-y-2 text-white">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
                   </div>
                 )}
                 {chats?.map((chat) => (
@@ -71,11 +76,11 @@ const AppSidebar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      {/* <SidebarFooter>
+      <SidebarFooter>
         <SidebarMenu className="items-center justify-center">
           {session && <SignOut />}
         </SidebarMenu>
-      </SidebarFooter> */}
+      </SidebarFooter>
     </Sidebar>
   );
 };

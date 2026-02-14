@@ -1,0 +1,1 @@
+ALTER TABLE "Message" ALTER COLUMN "parts" SET DATA TYPE text;

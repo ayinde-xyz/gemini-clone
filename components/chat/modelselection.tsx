@@ -77,9 +77,6 @@ const ModelSelection = ({ field, fieldState, isSidebar }: Model) => {
   if (isSidebar) {
     return (
       <Field>
-        <FieldContent>
-          <FieldLabel>Select a Model</FieldLabel>
-        </FieldContent>
         <Select
           name={field?.name}
           value={value}
@@ -91,12 +88,13 @@ const ModelSelection = ({ field, fieldState, isSidebar }: Model) => {
             <SelectValue placeholder="Select" />
           </SelectTrigger>
           <SelectContent position="item-aligned">
-            <SelectItem value="auto">Auto</SelectItem>
-            <SelectSeparator />
             {models.map((model) => (
-              <SelectItem key={model.value} value={model.value}>
-                {model.title}
-              </SelectItem>
+              <>
+                <SelectItem key={model.value} value={model.value}>
+                  {model.title}
+                </SelectItem>
+                <SelectSeparator />
+              </>
             ))}
           </SelectContent>
         </Select>
