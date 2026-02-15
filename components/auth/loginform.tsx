@@ -21,7 +21,6 @@ import { signInEmailAction } from "@/actions/login";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 
 export function LoginForm({
   className,
@@ -54,7 +53,7 @@ export function LoginForm({
       } else {
         toast.dismiss();
         toast.success("Logged in successfully!");
-        router.replace("/");
+        router.replace("/chat");
       }
     });
   };
@@ -103,7 +102,7 @@ export function LoginForm({
                         <div className="flex items-center">
                           <FormLabel htmlFor="password">Password</FormLabel>
                           <Link
-                            href="/auth/reset"
+                            href="/auth/forgot-password"
                             className="ml-auto text-sm underline-offset-2 hover:underline">
                             Forgot your password?
                           </Link>

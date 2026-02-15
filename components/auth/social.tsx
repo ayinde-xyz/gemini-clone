@@ -1,7 +1,7 @@
 "use client";
-import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
+import { signIn } from "@/lib/auth-client";
+import { APIError } from "better-auth";
 import {
   FaGoogle,
   FaInstagram,
@@ -10,6 +10,7 @@ import {
   FaTiktok,
 } from "react-icons/fa";
 import { FaMeta } from "react-icons/fa6";
+import { toast } from "sonner";
 // import { onClick } from "@/actions/social-login";
 
 export const Social = () => {
@@ -20,11 +21,29 @@ export const Social = () => {
       | "facebook"
       | "linkedin"
       | "instagram"
-      | "tiktok"
+      | "tiktok",
   ) => {
-    await signIn(provider, {
-      redirectTo: DEFAULT_LOGIN_REDIRECT,
-    });
+    try {
+      toast.loading("Signing in...");
+      const result = await signIn.social({
+        provider,
+      });
+
+      if (result.error) {
+        toast.dismiss();
+        toast.error(result.error.message || "Something went wrong");
+        return;
+      }
+
+      toast.dismiss();
+      toast.success("Signed in successfully!");
+    } catch (err) {
+      if (err instanceof APIError) {
+        toast.error(err.message);
+      }
+
+      toast.error("Something went wrong");
+    }
   };
   return (
     <div className="grid grid-cols-3 gap-4">

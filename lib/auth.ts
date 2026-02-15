@@ -18,7 +18,6 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   database: drizzleAdapter(db, {
     provider: "pg", // or "mysql", "sqlite"
-
     schema,
   }),
   emailAndPassword: {
@@ -35,6 +34,18 @@ export const auth = betterAuth({
     facebook: {
       clientId: process.env.FACEBOOK_CLIENT_ID as string,
       clientSecret: process.env.FACEBOOK_CLIENT_SECRET as string,
+    },
+    spotify: {
+      clientId: process.env.SPOTIFY_CLIENT_ID as string,
+      clientSecret: process.env.SPOTIFY_CLIENT_SECRET as string,
+    },
+    linkedin: {
+      clientId: process.env.LINKEDIN_CLIENT_ID as string,
+      clientSecret: process.env.LINKEDIN_CLIENT_SECRET as string,
+    },
+    tiktok: {
+      clientKey: process.env.TIKTOK_CLIENT_ID as string,
+      clientSecret: process.env.TIKTOK_CLIENT_SECRET as string,
     },
   },
 

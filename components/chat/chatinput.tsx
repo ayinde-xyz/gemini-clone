@@ -72,7 +72,10 @@ const ChatInput = ({ chatId }: Props) => {
       setLoading(true);
 
       toast.loading("Sending message...");
+
       const { prompt, model, file } = values;
+
+      form.reset();
 
       await axios.post("/api/chat/addMessage", {
         chatId,
@@ -80,49 +83,13 @@ const ChatInput = ({ chatId }: Props) => {
         role: "user",
       });
 
-      const response = await aiResponse(prompt, chatId);
+      const response = await aiResponse(prompt, model);
 
       await axios.post("/api/chat/addMessage", {
         chatId,
         prompt: response,
         role: "model",
       });
-
-      router.refresh();
-
-      // const input = prompt.trim();
-
-      // const message: Message = {
-      //   text: input,
-      //   createdAt: serverTimestamp(),
-      //   role: "user",
-      //   user: {
-      //     _id: session?.user?.email!,
-      //     name: session?.user?.name!,
-      //     avatar:
-      //       session?.user?.image! ||
-      //       `https://ui-avatars.com/api/?name=${session?.user?.name}`,
-      //   },
-      // };
-
-      // await addDoc(
-      //   collection(
-      //     db,
-      //     "users",
-      //     session?.user?.id!,
-      //     "chats",
-      //     chatId,
-      //     "messages",
-      //   ),
-      //   message,
-      // );
-
-      // const output = await genkitResponse(input, session, chatId, model, file);
-
-      // if (output) {
-      //   toast.dismiss();
-      //   toast.success("Message sent successfully");
-      // }
     } catch (error) {
       console.error(error);
       toast.error(`${error} Failed to send message`);

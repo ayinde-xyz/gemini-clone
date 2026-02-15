@@ -13,16 +13,16 @@ import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
 export const aiResponse = async (
   input: string,
   // session?: Session,
-  chatId?: string,
+  model: string,
   // model?: ModelType,
   // response?: FileMetadataResponse | undefined,
 ) => {
-  const model = new ChatGoogleGenerativeAI({
-    model: "gemini-2.5-flash",
+  const modelRes = new ChatGoogleGenerativeAI({
+    model,
     maxOutputTokens: 2048,
   });
 
-  const response = await model.invoke([["human", input]]);
+  const response = await modelRes.invoke([["human", input]]);
 
   console.log("AI Response:", response.content);
 
