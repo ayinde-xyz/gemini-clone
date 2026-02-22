@@ -3,7 +3,6 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Social } from "./social";
 import { ResetSchema, ResetSchemaType } from "@/schemas";
 import {
   Form,

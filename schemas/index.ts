@@ -16,6 +16,17 @@ export const SignupSchema = z.object({
 export const ResetSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email" }),
 });
+export const ResetPasswordSchema = z
+  .object({
+    password: z.string().min(8, "Password must be at least 8 characters."),
+    confirmPassword: z
+      .string()
+      .min(8, "Password must be at least 8 characters."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match.",
+    path: ["confirmPassword"],
+  });
 export const ChatSchema = z.object({
   prompt: z
     .string()
@@ -57,6 +68,7 @@ export const FileSchema = z
 export type SignupSchemaType = z.infer<typeof SignupSchema>;
 export type LoginSchemaType = z.infer<typeof LoginSchema>;
 export type ResetSchemaType = z.infer<typeof ResetSchema>;
+export type ResetPasswordSchemaType = z.infer<typeof ResetPasswordSchema>;
 export type ModelType = z.infer<typeof ChatSchema.shape.model>;
 export type ChatSchemaType = z.infer<typeof ChatSchema>;
 export type FileSchemaType = z.infer<typeof FileSchema>;

@@ -3,6 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/drizzle";
 import { nextCookies } from "better-auth/next-js";
 import * as schema from "@/drizzle/schema";
+import { sendEmailAction } from "@/actions/reset";
 
 const cookieDomain: string | undefined =
   process.env.VERCEL === "1"
@@ -23,6 +24,17 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     autoSignIn: false,
+    requireEmailVerification: true,
+    resetPasswordTokenExpiresIn: 60 * 60,
+    sendResetPassword: async ({ user, url }) => {
+      await sendEmailAction({
+        to: user.email,
+        subject: "Password Reset Request",
+        description:
+          "You requested a password reset. Click the button below to reset your password,",
+        link: url,
+      });
+    },
     // requireEmailVerification: true,
     // resetPasswordTokenExpiresIn: 60 * 60,
   },
@@ -46,6 +58,20 @@ export const auth = betterAuth({
     tiktok: {
       clientKey: process.env.TIKTOK_CLIENT_ID as string,
       clientSecret: process.env.TIKTOK_CLIENT_SECRET as string,
+    },
+  },
+  emailVerification: {
+    sendOnSignUp: true,
+    expiresIn: 60 * 60,
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await sendEmailAction({
+        to: user.email,
+        subject: "Verify your Email Address",
+        description:
+          "Welcome to Neuralis AI! Please verify your email address by clicking the button below.",
+        link: url,
+      });
     },
   },
 

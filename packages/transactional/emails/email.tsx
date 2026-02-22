@@ -7,157 +7,85 @@ import {
   Text,
   Heading,
   Link,
+  Tailwind,
+  pixelBasedPreset,
 } from "@react-email/components";
-import * as React from "react";
-
-// export default function Email() {
-//   return (
-//     <Html>
-//       <Head />
-//       <Body>
-//         <Button
-//           href="https://example.com"
-//           style={{ background: "#000", color: "#fff", padding: "12px 20px" }}>
-//           Click me
-//         </Button>
-//       </Body>
-//     </Html>
-//   );
-// }
 
 interface EmailProps {
   description?: string;
   link?: string;
+  subject?: string;
 }
 
-export default function Email({ description, link }: EmailProps) {
+export const Email = ({ description, link, subject }: EmailProps) => {
   return (
     <Html>
       <Head />
-      <Body
-        style={{
-          fontFamily: "Arial, sans-serif",
-          backgroundColor: "#f8fafc",
-          padding: "20px",
+      <Tailwind
+        config={{
+          presets: [pixelBasedPreset],
         }}>
-        <Container
-          style={{
-            maxWidth: "600px",
-            margin: "0 auto",
-            backgroundColor: "#ffffff",
-            borderRadius: "12px",
-            overflow: "hidden",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-          }}>
-          {/* Header */}
-          <div
-            style={{
-              background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
-              padding: "30px 20px",
-              textAlign: "center",
-            }}>
-            <div style={{ fontSize: "48px", marginBottom: "10px" }}>🤖</div>
-            <Heading
-              style={{
-                color: "#ffffff",
-                margin: "0",
-                fontSize: "28px",
-                fontWeight: "bold",
-              }}>
-              Neuralis AI
-            </Heading>
-          </div>
-
-          {/* Content */}
-          <div style={{ padding: "40px 30px" }}>
-            <Heading
-              style={{
-                color: "#1f2937",
-                fontSize: "24px",
-                marginBottom: "20px",
-                textAlign: "center",
-              }}>
-              Reset Your Password
-            </Heading>
-
-            <Text
-              style={{
-                color: "#4b5563",
-                fontSize: "16px",
-                lineHeight: "1.6",
-                marginBottom: "30px",
-                textAlign: "center",
-              }}>
-              {description}
-            </Text>
-
-            <div style={{ textAlign: "center", marginBottom: "30px" }}>
-              <Button
-                href={link}
-                style={{
-                  background:
-                    "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
-                  color: "#ffffff",
-                  padding: "14px 28px",
-                  borderRadius: "8px",
-                  textDecoration: "none",
-                  fontSize: "16px",
-                  fontWeight: "bold",
-                  display: "inline-block",
-                  boxShadow: "0 4px 14px rgba(59, 130, 246, 0.3)",
-                  transition: "all 0.3s ease",
-                }}>
-                Reset Password
-              </Button>
+        <Body className="font-sans bg-slate-50 p-5">
+          <Container className="max-w-xl mx-auto bg-white rounded-xl overflow-hidden shadow-md">
+            {/* Header */}
+            <div className="p-8 text-center">
+              <div className="text-4xl mb-2">🤖</div>
+              <Heading className="text-black text-2xl font-bold m-0">
+                Neuralis AI
+              </Heading>
             </div>
 
-            <Text
-              style={{
-                color: "#6b7280",
-                fontSize: "14px",
-                textAlign: "center",
-                marginBottom: "20px",
-              }}>
-              If the button doesn't work, copy and paste this link into your
-              browser:
-            </Text>
+            {/* Content */}
+            <div className="p-10">
+              <Heading className="text-slate-800 text-xl mb-5 text-center">
+                {subject}
+              </Heading>
 
-            <Link
-              href={link}
-              style={{
-                color: "#3b82f6",
-                fontSize: "14px",
-                wordBreak: "break-all",
-                textAlign: "center",
-                display: "block",
-              }}>
-              {link}
-            </Link>
-          </div>
+              <Text className="text-gray-600 text-base leading-relaxed mb-8 text-center">
+                {description}
+              </Text>
 
-          {/* Footer */}
-          <div
-            style={{
-              backgroundColor: "#f3f4f6",
-              padding: "20px 30px",
-              textAlign: "center",
-              borderTop: "1px solid #e5e7eb",
-            }}>
-            <Text style={{ color: "#6b7280", fontSize: "12px", margin: "0" }}>
-              This link will expire in 24 hours for security reasons.
-            </Text>
-            <Text
-              style={{
-                color: "#6b7280",
-                fontSize: "12px",
-                margin: "10px 0 0 0",
-              }}>
-              If you didn't request this password reset, please ignore this
-              email.
-            </Text>
-          </div>
-        </Container>
-      </Body>
+              <div className="text-center mb-8">
+                <Button
+                  href={link}
+                  className="px-6 py-3 rounded-lg font-semibold shadow-md inline-block">
+                  Reset Password
+                </Button>
+              </div>
+
+              <Text className="text-gray-500 text-sm text-center mb-4">
+                If the button doesn't work, copy and paste this link into your
+                browser:
+              </Text>
+
+              <Link
+                href={link}
+                className="text-blue-600 wrap-break-words text-center block text-sm">
+                {link}
+              </Link>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-100 p-5 text-center border-t">
+              <Text className="text-gray-500 text-xs m-0">
+                This link will expire in 24 hours for security reasons.
+              </Text>
+              <Text className="text-gray-500 text-xs mt-2">
+                If you didn't request this password reset, please ignore this
+                email.
+              </Text>
+            </div>
+          </Container>
+        </Body>
+      </Tailwind>
     </Html>
   );
-}
+};
+
+Email.PreviewProps = {
+  description: "Click the button below to reset your password.",
+  link: "https://example.com/reset-password",
+  subject: "Reset your password",
+} as EmailProps;
+
+export default Email;
