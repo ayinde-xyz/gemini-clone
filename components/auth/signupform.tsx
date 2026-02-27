@@ -20,20 +20,16 @@ import { useTransition } from "react";
 import { signupEmailAction } from "@/actions/signup";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export function SignupForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const searchParams = useSearchParams();
   const [loading, startLoading] = useTransition();
   const router = useRouter();
-  const urlError =
-    searchParams.get("error") === "OAuthAccountNotLinked"
-      ? "Your account is already linked to a social account"
-      : "";
+
   const form = useForm<SignupSchemaType>({
     resolver: zodResolver(SignupSchema),
     defaultValues: {
@@ -68,9 +64,6 @@ export function SignupForm({
                 <h1 className="text-xl font-bold">Welcome!</h1>
                 <p className="text-balance text-muted-foreground">
                   Sign up to your account
-                </p>
-                <p className="text-destructive text-balance">
-                  {urlError && urlError}
                 </p>
               </div>
               <Form {...form}>

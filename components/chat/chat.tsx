@@ -15,7 +15,7 @@ const Chat = async ({ chatId }: Props) => {
     return (
       <div className="flex-1 overflew-y-auto ">
         <ChatHeader />
-        <EmptyChat />
+        <EmptyChat message={"Create a new chat to get started!"} />
       </div>
     );
 

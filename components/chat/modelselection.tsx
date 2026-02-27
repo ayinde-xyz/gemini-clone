@@ -34,8 +34,8 @@ type Model = {
 
 const models = [
   {
-    title: "Gemini 3 Pro",
-    value: "gemini-3-pro-preview",
+    title: "Gemini 3.1 Pro",
+    value: "gemini-3.1-pro-preview",
     description: "The best model in the world for multimodal understanding",
   },
   {
@@ -109,9 +109,10 @@ const ModelSelection = ({ field, fieldState, isSidebar }: Model) => {
           <BotIcon size={14} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="absolute top-0  right-0 w-60 md:w-70  bg-slate-100">
+      <DropdownMenuContent className="absolute -top-30  -right-10 md:-top-25 md:left-30 w-60 md:w-70  bg-slate-100">
         <DropdownMenuLabel>Select a model</DropdownMenuLabel>
         <RadioGroup
+          name={field?.name}
           value={value}
           onValueChange={onChange}
           defaultValue={"gemini-3-flash-preview"}>

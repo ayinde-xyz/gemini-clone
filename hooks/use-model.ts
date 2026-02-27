@@ -1,7 +1,7 @@
 "use client";
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import { ChatSchemaType } from "@/schemas";
 
 type ModelState = {
@@ -10,7 +10,7 @@ type ModelState = {
   reset: () => void;
 };
 
-const DEFAULT_MODEL = "gemini-2.5-flash";
+const DEFAULT_MODEL = "gemini-3-flash-preview";
 
 const useModel = create<ModelState>()(
   persist(
@@ -21,7 +21,7 @@ const useModel = create<ModelState>()(
     }),
     {
       name: "neuralis-model-storage", // key in localStorage (optional)
-      storage: typeof window !== "undefined" ? localStorage : undefined,
+      storage: createJSONStorage(() => localStorage),
     },
   ),
 );

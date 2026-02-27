@@ -52,6 +52,7 @@ export const Social = () => {
           onClick("spotify");
         }}
         variant="outline"
+        disabled
         className="w-full">
         <FaSpotify />
         <span className="sr-only">Login with Spotify</span>
@@ -73,6 +74,7 @@ export const Social = () => {
       <Button
         variant="outline"
         onClick={() => onClick("linkedin")}
+        disabled
         className="w-full">
         <FaLinkedin />
         <span className="sr-only">Login with Linkedin</span>
@@ -80,6 +82,7 @@ export const Social = () => {
       <Button
         variant="outline"
         onClick={() => onClick("instagram")}
+        disabled
         className="w-full">
         <FaInstagram />
         <span className="sr-only">Login with Instagram</span>
@@ -87,6 +90,7 @@ export const Social = () => {
       <Button
         variant="outline"
         onClick={() => onClick("tiktok")}
+        disabled
         className="w-full">
         <FaTiktok />
         <span className="sr-only">Login with Tiktok</span>

@@ -1,7 +1,7 @@
 "use client";
 import { ChatBubbleLeftIcon, TrashIcon } from "@heroicons/react/24/outline";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 // import { useSession } from "@/lib/auth-client";
 import { Chat } from "@/drizzle/schema";
@@ -14,7 +14,7 @@ type Props = {
 
 const ChatRow = ({ chat }: Props) => {
   const pathname = usePathname();
-  // const router = useRouter();
+  const router = useRouter();
   // const { data: session } = useSession();
   // const [active, setActive] = useState(false);
   // const [messages] = useCollection(
@@ -36,7 +36,7 @@ const ChatRow = ({ chat }: Props) => {
 
   const removeChat = async (chatId: string) => {
     await axios.delete(`/api/chat/deleteChat?chatId=${chatId}`);
-    // redirect("/chat");
+    router.push("/chat");
   };
   return (
     <Link
