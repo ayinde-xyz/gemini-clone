@@ -8,7 +8,7 @@ import { sendEmailAction } from "@/actions/reset";
 const cookieDomain: string | undefined =
   process.env.VERCEL === "1"
     ? process.env.VERCEL_ENV === "production"
-      ? "ecommerce-admin-silk-ten.vercel.app"
+      ? process.env.VERCEL_URL
       : process.env.VERCEL_ENV === "preview"
         ? `.${process.env.VERCEL_URL}`
         : undefined
@@ -98,7 +98,7 @@ export const auth = betterAuth({
     },
     trustedOrigins: [
       "http://localhost:3000",
-      "https://ecommerce-admin-silk-ten.vercel.app",
+      `https://${process.env.VERCEL_URL}`,
     ],
   },
 });
